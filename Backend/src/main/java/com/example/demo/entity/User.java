@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -13,6 +14,7 @@ import java.util.List;
 @Entity
 @Table(name = "user")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ma_nguoi_dung")
@@ -80,4 +82,20 @@ public class User {
             joinColumns = @JoinColumn(name = "ma_nguoi_dung"),
             inverseJoinColumns = @JoinColumn(name = "ma_quyen"))
     private List<Role> roles;
+
+    @JsonIgnore // Chặn quét tuần hoàn danh sách sản phẩm khi serialize dữ liệu
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = {
+            CascadeType.REFRESH,
+            CascadeType.MERGE,
+            CascadeType.DETACH,
+    })
+    private List<Product> products;
+
+    @JsonIgnore // Chặn quét tuần hoàn danh sách đánh giá
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = {
+            CascadeType.REFRESH,
+            CascadeType.MERGE,
+            CascadeType.DETACH,
+    })
+    private List<Review> reviews;
 }
