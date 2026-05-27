@@ -1,0 +1,93 @@
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import java.util.List;
+
+@Data
+@Entity
+@Table(name="product")
+public class Product {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="ma_san_pham")
+    private Long maSanPham;
+
+    @Column(name = "ten_san_pham", length = 256)
+    private String tenSanPham;
+
+    @Column(name="so_luong")
+    private int soLuong;
+
+    @Column(name="gia_san_pham")
+    private double giaSanPham;
+
+    @Column(name = "thuong_hieu")
+    private String thuongHieu;
+
+    @Column(name = "mo_ta")
+    private String moTa;
+
+    @Column(name = "mau_sac")
+    private String mauSac;
+
+    @Column(name = "kich_co")
+    private String kichCo;
+
+    @Column(name = "active")
+    private boolean active;
+
+    @Column(name = "soLuongDaBan")
+    private int soLuongDaBan;
+
+    @ManyToOne(cascade = {
+            CascadeType.DETACH,
+            CascadeType.REFRESH,
+            CascadeType.MERGE,
+            CascadeType.PERSIST,
+    })
+    @JoinColumn(name = "ma_trang_thai", nullable = false)
+    private TrangThaiSanPham trangThaiSanPham;
+
+    @ManyToOne(cascade = {
+            CascadeType.DETACH,
+            CascadeType.REFRESH,
+            CascadeType.MERGE,
+            CascadeType.PERSIST,
+    })
+    @JoinColumn(name = "ma_nguoi_dung", nullable = false)
+    private User user;
+
+    @ManyToOne(cascade = {
+            CascadeType.DETACH,
+            CascadeType.REFRESH,
+            CascadeType.MERGE,
+            CascadeType.PERSIST,
+    })
+    @JoinColumn(name = "ma_the_loai", nullable = false)
+    private Category category;
+
+    @ManyToOne(cascade = {
+            CascadeType.DETACH,
+            CascadeType.REFRESH,
+            CascadeType.MERGE,
+            CascadeType.PERSIST,
+    })
+    @JoinColumn(name = "ma_tinh_trang")
+    private TinhTrang tinhTrang;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = {
+            CascadeType.REFRESH,
+            CascadeType.MERGE,
+            CascadeType.DETACH
+    })
+    private List<Review> reviews;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = {
+            CascadeType.REFRESH,
+            CascadeType.MERGE,
+            CascadeType.DETACH
+    })
+    private List<HinhAnh> hinhAnhs;
+}
