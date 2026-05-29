@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.ApiResponse;
+import com.example.demo.dto.CategoryDTO;
 import com.example.demo.dto.ProductDTO;
 import com.example.demo.dto.SellerDTO;
 import com.example.demo.service.CategoryService;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/home")
@@ -28,6 +30,7 @@ public class HomeController {
     private final CategoryService categoryService;
     private final SellerService sellerService;
 
+    // --- CÁC API TRANG CHỦ (CŨ) ---
     @GetMapping("/hero")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getHeroData() {
         Map<String, Object> heroData = new HashMap<>();
@@ -38,15 +41,12 @@ public class HomeController {
 
     @GetMapping("/categories")
     public ResponseEntity<ApiResponse<List<CategoryDTO>>> getCategories() {
-        List<CategoryDTO> categories = categoryService.getAllCategories();
-        return ApiResponse.ok("Lấy danh sách danh mục thành công!", categories);
+        return ApiResponse.ok("Lấy danh sách danh mục thành công!", categoryService.getAllCategories());
     }
 
     @GetMapping("/products/newest")
-    public ResponseEntity<ApiResponse<List<ProductDTO>>> getNewestProducts(
-            @RequestParam(defaultValue = "10") int limit) {
-        List<ProductDTO> products = productService.getNewestProducts(limit);
-        return ApiResponse.ok("Lấy sản phẩm mới đăng thành công!", products);
+    public ResponseEntity<ApiResponse<List<ProductDTO>>> getNewestProducts(@RequestParam(defaultValue = "10") int limit) {
+        return ApiResponse.ok("Lấy sản phẩm mới đăng thành công!", productService.getNewestProducts(limit));
     }
 
     @GetMapping("/products/best-selling")
@@ -54,39 +54,27 @@ public class HomeController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductDTO> products = productService.getBestSellingProducts(pageable);
-        return ApiResponse.ok("Lấy sản phẩm bán chạy nhất thành công!", products);
+        return ApiResponse.ok("Lấy sản phẩm bán chạy nhất thành công!", productService.getBestSellingProducts(pageable));
     }
 
     @GetMapping("/sellers/top-rated")
-    public ResponseEntity<ApiResponse<List<SellerDTO>>> getTopRatedSellers(
-            @RequestParam(defaultValue = "8") int limit) {
-        List<SellerDTO> sellers = sellerService.getTopRatedSellers(limit);
-        return ApiResponse.ok("Lấy danh sách top người bán thành công!", sellers);
-    }
-
-    @GetMapping("/sellers/top-products")
-    public ResponseEntity<ApiResponse<List<SellerDTO>>> getTopSellersByProductCount(
-            @RequestParam(defaultValue = "8") int limit) {
-        List<SellerDTO> sellers = sellerService.getTopSellersByProductCount(limit);
-        return ApiResponse.ok("Lấy danh sách người bán top sản phẩm thành công!", sellers);
+    public ResponseEntity<ApiResponse<List<SellerDTO>>> getTopRatedSellers(@RequestParam(defaultValue = "8") int limit) {
+        return ApiResponse.ok("Lấy danh sách top người bán thành công!", sellerService.getTopRatedSellers(limit));
     }
 
     @GetMapping("/products/category/{categoryId}")
-    public ResponseEntity<ApiResponse<List<ProductDTO>>> getProductsByCategory(
-            @PathVariable int categoryId) {
-        List<ProductDTO> products = productService.getProductsByCategory(categoryId);
-        return ApiResponse.ok("Lấy sản phẩm theo danh mục thành công!", products);
+    public ResponseEntity<ApiResponse<List<ProductDTO>>> getProductsByCategory(@PathVariable int categoryId) {
+        return ApiResponse.ok("Lấy sản phẩm theo danh mục thành công!", productService.getProductsByCategory(categoryId));
     }
 
+    // --- CÁC API CHI TIẾT VÀ GỢI Ý (MỚI BỔ SUNG) ---
     @GetMapping("/products/{id}")
     public ResponseEntity<ApiResponse<ProductDTO>> getProductDetail(@PathVariable long id) {
         ProductDTO product = productService.getProductById(id);
         if (product != null) {
             return ApiResponse.ok("Lấy chi tiết sản phẩm thành công!", product);
-        } else {
-            return ApiResponse.error(HttpStatus.NOT_FOUND, "Sản phẩm không tồn tại.");
         }
+        return ApiResponse.error(HttpStatus.NOT_FOUND, "Sản phẩm không tồn tại.");
     }
 
     @GetMapping("/sellers/{id}")
@@ -94,8 +82,27 @@ public class HomeController {
         SellerDTO seller = sellerService.getSellerById(id);
         if (seller != null) {
             return ApiResponse.ok("Lấy thông tin người bán thành công!", seller);
-        } else {
-            return ApiResponse.error(HttpStatus.NOT_FOUND, "Người bán không tồn tại.");
         }
+        return ApiResponse.error(HttpStatus.NOT_FOUND, "Người bán không tồn tại.");
+    }
+
+    @GetMapping("/sellers/{id}/products")
+    public ResponseEntity<ApiResponse<List<ProductDTO>>> getProductsBySeller(
+            @PathVariable long id,
+            @RequestParam(defaultValue = "8") int limit,
+            @RequestParam(required = false) Long excludeProductId) {
+
+        List<ProductDTO> products = productService.getProductsBySeller(id);
+
+        if (excludeProductId != null) {
+            products = products.stream()
+                    .filter(p -> p.getMaSanPham() != excludeProductId)
+                    .collect(Collectors.toList());
+        }
+        if (products.size() > limit) {
+            products = products.subList(0, limit);
+        }
+
+        return ApiResponse.ok("Lấy sản phẩm của người bán thành công!", products);
     }
 }
