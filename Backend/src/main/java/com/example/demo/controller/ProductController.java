@@ -1,7 +1,5 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.ApiResponse;
-import com.example.demo.dto.ProductForSaleRequest;
 import com.example.demo.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,5 @@ public class ProductController {
             @Valid @RequestBody ProductForSaleRequest request,
             Authentication authentication
     ) {
-        productService.postProduct(request, authentication.getName());
-        return ApiResponse.ok("Đăng bán sản phẩm thành công, hãy chờ admin duyệt nha");
     }
 }
