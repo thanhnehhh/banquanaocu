@@ -1,30 +1,22 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.DonHangDTO;
-import com.example.demo.dto.PageResponse;
 
 import java.util.List;
 
 public interface DonHangService {
 
-    List<DonHangDTO> taoDoHang(String email, String diaChiNhanHang,
-                               double chiPhiGiaoHang, String phuongThucThanhToan);
+    /** Tạo đơn hàng từ giỏ hàng hiện tại của user */
+    DonHangDTO taoDoHang(String email, String diaChiNhanHang, double chiPhiGiaoHang);
 
+    /** Lấy danh sách đơn hàng của user */
     List<DonHangDTO> getDonHangCuaUser(String email);
 
+    /** Lấy chi tiết một đơn hàng */
     DonHangDTO getDonHangById(String email, int maDonHang);
 
+    /** Hủy đơn hàng (chỉ được hủy khi đang "Chờ xác nhận") */
     DonHangDTO huyDonHang(String email, int maDonHang, String lyDoHuy);
 
-    List<DonHangDTO> getSellOrdersOfSeller(String email, String trangThai);
-
-    DonHangDTO xacNhanDonHang(String sellerEmail, int maDonHang);
-
-    DonHangDTO huyDonHangBySeller(String sellerEmail, int maDonHang, String lyDoHuy);
-
-    PageResponse<DonHangDTO> getAllOrdersForAdmin(String status, int page, int size);
-
-    DonHangDTO adminConfirmOrder(int maDonHang);
-
-    DonHangDTO adminCancelOrder(int maDonHang, String lyDoHuy);
+    DonHangDTO hoanThanhDonHang(String email, int maDonHang);
 }
