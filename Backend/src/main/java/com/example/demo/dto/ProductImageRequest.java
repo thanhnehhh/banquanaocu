@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductImageRequest {
+
     @NotBlank(message = "Tên ảnh không được để trống")
     private String tenAnh;
 
