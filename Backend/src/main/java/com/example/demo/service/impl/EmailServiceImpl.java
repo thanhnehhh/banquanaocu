@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
+
     private final JavaMailSender mailSender;
 
     @Async
@@ -19,9 +20,14 @@ public class EmailServiceImpl implements EmailService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
         message.setSubject("Kích hoạt tài khoản của bạn");
-        message.setText("Chào bạn,\n\nCảm ơn bạn đã đăng ký tài khoản.\n" +
-                "Vui lòng nhấn vào đường dẫn bên dưới để kích hoạt tài khoản:\n\n" + linkKichHoat +
-                "\n\nĐường dẫn có hiệu lực trong 24 giờ.\n\nTrân trọng,\nĐội ngũ phát triển");
+        message.setText(
+                "Chào bạn,\n\n" +
+                        "Cảm ơn bạn đã đăng ký tài khoản.\n" +
+                        "Vui lòng nhấn vào đường dẫn bên dưới để kích hoạt tài khoản:\n\n" +
+                        linkKichHoat + "\n\n" +
+                        "Đường dẫn có hiệu lực trong 24 giờ.\n\n" +
+                        "Trân trọng,\nOReMA Team"
+        );
         mailSender.send(message);
     }
 
@@ -31,9 +37,61 @@ public class EmailServiceImpl implements EmailService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
         message.setSubject("Yêu cầu đặt lại mật khẩu");
-        message.setText("Chào bạn,\n\nBạn đã yêu cầu đặt lại mật khẩu cho tài khoản của mình.\n" +
-                "Mã xác nhận (OTP) của bạn là: " + otp + "\n\nMã này có hiệu lực trong 24 giờ.\n" +
-                "Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.\n\nTrân trọng.");
+        message.setText(
+                "Chào bạn,\n\n" +
+                        "Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản của mình.\n" +
+                        "Mã xác nhận (OTP) của bạn là: " + otp + "\n\n" +
+                        "Mã này có hiệu lực trong 24 giờ.\n" +
+                        "Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.\n\n" +
+                        "Trân trọng,\nOReMA Team"
+        );
+        mailSender.send(message);
+    }
+
+    @Override
+    public void guiEmailTuChoi(String toEmail, String lyDo) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Thông báo từ chối sản phẩm");
+        message.setText(
+                "Xin chào,\n\n" +
+                        "Sản phẩm của bạn đã bị từ chối bởi hệ thống kiểm duyệt.\n\n" +
+                        "Lý do từ chối: " + lyDo + "\n\n" +
+                        "Vui lòng kiểm tra và cập nhật lại thông tin sản phẩm trước khi gửi duyệt lại.\n\n" +
+                        "Trân trọng,\nĐội ngũ quản trị OReMA."
+        );
+        mailSender.send(message);
+    }
+
+    /**
+     * Gửi email thông báo đơn hàng mới cho người bán (async).
+     * Người bán nhận được email với link vào trang quản lý đơn bán.
+     */
+    @Async
+    @Override
+    public void guiEmailDonHangMoiChoSeller(String sellerEmail, String buyerName,
+                                            int maDonHang, String diaChiNhanHang,
+                                            double tongTien, String chiTietSanPham) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(sellerEmail);
+        message.setSubject("[OReMA] Ban co don hang moi #" + maDonHang);
+        message.setText(
+                "Xin chao,\n\n" +
+                        "Ban vua nhan duoc mot don hang moi tren OReMA!\n\n" +
+                        "============================================\n" +
+                        "MA DON HANG : #" + maDonHang + "\n" +
+                        "NGUOI MUA   : " + buyerName + "\n" +
+                        "DIA CHI     : " + diaChiNhanHang + "\n" +
+                        "============================================\n" +
+                        "SAN PHAM:\n" + chiTietSanPham +
+                        "============================================\n" +
+                        "TONG TIEN   : " + String.format("%,.0f", tongTien) + " VND\n\n" +
+                        "Vui long dang nhap vao OReMA de xac nhan don hang:\n" +
+                        "http://localhost:5173/profile/sell-orders\n\n" +
+                        "Luu y: Don hang se tu dong huy neu khong duoc xac nhan trong thoi gian quy dinh.\n\n" +
+                        "Tran trong,\n" +
+                        "OReMA Team"
+        );
         mailSender.send(message);
     }
 }
