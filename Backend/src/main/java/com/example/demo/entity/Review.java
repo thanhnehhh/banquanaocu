@@ -1,5 +1,7 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.Product;
+import com.example.demo.entity.User;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,7 +27,7 @@ public class Review {
             CascadeType.MERGE,
             CascadeType.PERSIST,
     })
-    @JoinColumn(name = "ma_san_pham", nullable = false)
+    @JoinColumn(name = "ma_san_pham",nullable = false)
     private Product product;
 
     @ManyToOne(cascade = {
@@ -34,6 +36,6 @@ public class Review {
             CascadeType.MERGE,
             CascadeType.PERSIST,
     })
-    @JoinColumn(name = "ma_nguoi_dung", nullable = false)
+    @JoinColumn(name = "ma_nguoi_dung",nullable = false)
     private User user;
 }
