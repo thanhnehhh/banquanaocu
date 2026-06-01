@@ -17,43 +17,43 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class ProductController {
 
-    private final ProductService productService;
+        private final ProductService productService;
 
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse<Page<ProductDTO>>> searchProducts(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) Integer categoryId,
-            @RequestParam(required = false) Integer statusId,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice,
-            Pageable pageable) {
+        @GetMapping("/search")
+        public ResponseEntity<ApiResponse<Page<ProductDTO>>> searchProducts(
+                        @RequestParam(required = false) String keyword,
+                        @RequestParam(required = false) Integer categoryId,
+                        @RequestParam(required = false) Integer statusId,
+                        @RequestParam(required = false) Double minPrice,
+                        @RequestParam(required = false) Double maxPrice,
+                        Pageable pageable) {
 
-        Page<ProductDTO> products = productService.searchProducts(
-                keyword,
-                categoryId,
-                statusId,
-                minPrice,
-                maxPrice,
-                pageable);
+                Page<ProductDTO> products = productService.searchProducts(
+                                keyword,
+                                categoryId,
+                                statusId,
+                                minPrice,
+                                maxPrice,
+                                pageable);
 
-        return ApiResponse.ok(
-                "Lấy danh sách sản phẩm thành công!",
-                products);
-    }
+                return ApiResponse.ok(
+                                "Lấy danh sách sản phẩm thành công!",
+                                products);
+        }
 
-    @PostMapping("/post")
-    public ResponseEntity<ApiResponse<Void>> dangSanPham(
-            @Valid @RequestBody ProductForSaleRequest request,
-            Authentication authentication
-    ) {
+        @PostMapping("/post")
+        public ResponseEntity<ApiResponse<Void>> dangSanPham(
+                        @Valid @RequestBody ProductForSaleRequest request,
+                        Authentication authentication
+                        ) {
 
-        String email = authentication.getName();
+                String email = authentication.getName();
 
-        productService.postProduct(request,email);
+                productService.postProduct(request,email);
 
-        return ApiResponse.ok(
-                "Đăng bán sản phẩm thành công, hãy chờ admin duyệt nha");
-    }
+                return ApiResponse.ok(
+                                "Đăng bán sản phẩm thành công, hãy chờ admin duyệt nha");
+        }
 
     @PutMapping("/{productId}/approve")
     public ResponseEntity<ApiResponse<Void>> approveProduct(
@@ -89,7 +89,7 @@ public class ProductController {
 
     @GetMapping("/seller")
     public ResponseEntity<ApiResponse<Page<ProductSellerDTO>>> getProductsAllForSeller(@RequestParam(defaultValue = "0") int page,
-                                                                                       @RequestParam(defaultValue = "5") int size,Authentication authentication){
+                                                                     @RequestParam(defaultValue = "5") int size,Authentication authentication){
         String email = authentication.getName();
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductSellerDTO> products =
@@ -135,6 +135,5 @@ public class ProductController {
 
         return ApiResponse.ok("Cập nhật sản phẩm thành công");
     }
-
 
 }

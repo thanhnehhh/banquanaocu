@@ -70,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductDTO> searchProducts(String keyword, Integer categoryId, Integer statusId,
+    public Page<ProductDTO> searchProducts(String keyword, Integer categoryId, Integer statusId, 
                                            Double minPrice, Double maxPrice, Pageable pageable) {
         return productRepository.searchProducts(keyword, categoryId, statusId, minPrice, maxPrice, pageable)
                 .map(this::convertToDTO);
@@ -116,6 +116,7 @@ public class ProductServiceImpl implements ProductService {
                                 )
                         );
 
+
         // Tạo product
         Product product = new Product();
 
@@ -137,6 +138,7 @@ public class ProductServiceImpl implements ProductService {
 
         // Lưu product trước
         Product savedProduct = productRepository.save(product);
+
 
         // Lưu danh sách ảnh
         List<HinhAnh> images = request.getImages()
@@ -231,6 +233,7 @@ public class ProductServiceImpl implements ProductService {
 
         Page<Product> products =
                 productRepository.findByTrangThaiSanPham(trangThaiSanPham, pageable);
+
 
         return products.map(productMapper::toPendingDTO);
     }
@@ -459,13 +462,13 @@ public class ProductServiceImpl implements ProductService {
         dto.setTenNguoiBan(product.getUser().getEmail());
         dto.setMaNguoiBan(product.getUser().getMaNguoiDung());
         dto.setEmail(product.getUser().getEmail());
-
+        
         // Set category info
         if (product.getCategory() != null) {
             dto.setTenTheLoai(product.getCategory().getTenTheLoai());
             dto.setMaTheLoai(product.getCategory().getMaTheLoai());
         }
-
+        
         // Set status info
         if (product.getTinhTrang() != null) {
             dto.setMaTinhTrang(product.getTinhTrang().getMaTinhTrang());
@@ -478,7 +481,7 @@ public class ProductServiceImpl implements ProductService {
                     .map(hinhAnh -> hinhAnh.getDuongDan())
                     .collect(Collectors.toList());
             dto.setHinhAnhs(hinhAnhs);
-
+            
             // Lấy ảnh đầu tiên của SẢN PHẨM làm ảnh đại diện
             if (!hinhAnhs.isEmpty()) {
                 dto.setHinhAnhDaiDien(hinhAnhs.get(0));
