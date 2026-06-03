@@ -2,11 +2,15 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.AdminUserDTO;
 import com.example.demo.dto.ApiResponse;
+import com.example.demo.dto.DonHangDTO;
 import com.example.demo.dto.PageResponse;
 import com.example.demo.service.AdminService;
+import com.example.demo.service.DonHangService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 
     private final AdminService adminService;
+    private final DonHangService donHangService;
 
     /**
      * GET /api/admin/users?page=0&size=10
@@ -93,5 +98,40 @@ public class AdminController {
     @lombok.AllArgsConstructor
     public static class StatusUpdateRequest {
         private Integer trangThai;
+    }
+
+    // ─── Order management (mới thêm theo web_tmdt) ────────────────────────────
+
+    /**
+     * GET /api/admin/orders?status=all&page=0&size=10
+     */
+    @GetMapping("/orders")
+    public ResponseEntity<ApiResponse<PageResponse<DonHangDTO>>> getAllOrders(
+            @RequestParam(defaultValue = "all") String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        PageResponse<DonHangDTO> response = donHangService.getAllOrdersForAdmin(status, page, size);
+        return ApiResponse.ok("Lấy danh sách đơn hàng thành công!", response);
+    }
+
+    /**
+     * PUT /api/admin/orders/{id}/confirm
+     */
+    @PutMapping("/orders/{id}/confirm")
+    public ResponseEntity<ApiResponse<DonHangDTO>> adminConfirmOrder(@PathVariable int id) {
+        DonHangDTO donHang = donHangService.adminConfirmOrder(id);
+        return ApiResponse.ok("Xác nhận đơn hàng thành công!", donHang);
+    }
+
+    /**
+     * PUT /api/admin/orders/{id}/cancel
+     */
+    @PutMapping("/orders/{id}/cancel")
+    public ResponseEntity<ApiResponse<DonHangDTO>> adminCancelOrder(
+            @PathVariable int id,
+            @RequestBody Map<String, Object> body) {
+        String lyDoHuy = (String) body.getOrDefault("lyDoHuy", "Admin hủy đơn");
+        DonHangDTO donHang = donHangService.adminCancelOrder(id, lyDoHuy);
+        return ApiResponse.ok("Hủy đơn hàng thành công!", donHang);
     }
 }

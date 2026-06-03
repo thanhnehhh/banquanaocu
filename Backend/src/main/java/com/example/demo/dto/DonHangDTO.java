@@ -27,5 +27,15 @@ public class DonHangDTO {
 
     private String lyDoHuy;
 
+    private String phuongThucThanhToan;
+
+    private Integer maDonHangCha;
+
+    private String tenKhachHang;
+
+    private String tenNguoiBan;
+
+    private String emailNguoiBan;
+
     private List<ChiTietDonHangDTO> chiTiet;
 }
