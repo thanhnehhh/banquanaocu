@@ -14,6 +14,7 @@ public class Endpoints {
             "/api/statuses/**",
             "/api/payment/vnpay/ipn",
             "/api/comments",        // Xem bình luận không cần đăng nhập
+            "/api/order-statuses",  // Lấy danh sách trạng thái đơn hàng
     };
 
     public static final String[] PUBLIC_POST_ENDPOINTS = new String[] {
@@ -30,6 +31,9 @@ public class Endpoints {
             "/api/products/seller",
             "/api/orders",
             "/api/orders/**",
+            "/api/orders/sell-orders",  // Đơn bán của seller
+            "/api/vi/**",               // Thông tin ví
+            "/api/thong-ke/**",         // Thống kê doanh thu seller
     };
 
     public static final String[] PRIVATE_POST_ENDPOINT = new String[] {
@@ -37,7 +41,9 @@ public class Endpoints {
             "/api/cart/add",
             "/api/products/post",
             "/api/orders",
-            "/api/payment/vnpay/create-payment",  // Tạo URL thanh toán VNPAY
+            "/api/payment/vnpay/create-payment",
+            "/api/comments",    // Đăng bình luận cần đăng nhập
+            "/api/vi/*/rut-tien", // Rút tiền ví
     };
 
     public static final String[] PRIVATE_PUT_ENDPOINT = new String[] {
@@ -47,16 +53,22 @@ public class Endpoints {
             "/api/products/*/active",
             "/api/products/*/deactive",
             "/api/orders/*/cancel",
+            "/api/orders/*/seller-confirm",  // Seller xác nhận đơn
+            "/api/orders/*/seller-cancel",   // Seller hủy đơn
+            "/api/orders/*/complete",        // Buyer hoàn thành đơn
     };
 
     public static final String[] ADMIN_PUT_ENDPOINTS = new String[] {
             "/api/products/*/approve",
             "/api/products/*/reject",
+            "/api/admin/orders/*/confirm",   // Admin xác nhận đơn
+            "/api/admin/orders/*/cancel",    // Admin hủy đơn
     };
 
     public static final String[] ADMIN_GET_ENDPOINTS = new String[] {
             "/api/products/pending",
             "/api/products/admin",
-            "/api/products/*"
+            "/api/products/*",
+            "/api/admin/orders",             // Admin xem tất cả đơn hàng
     };
 }

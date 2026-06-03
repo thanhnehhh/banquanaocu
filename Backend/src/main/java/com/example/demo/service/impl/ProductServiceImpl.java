@@ -6,6 +6,7 @@ import com.example.demo.entity.*;
 import com.example.demo.exception.BusinessException;
 import com.example.demo.mapper.ProductMapper;
 import com.example.demo.mapper.ProductSellerMapper;
+import com.example.demo.mapper.ProductAdminMapper;
 import com.example.demo.service.EmailService;
 import com.example.demo.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -33,19 +34,21 @@ public class ProductServiceImpl implements ProductService {
     private final EmailService emailService;
     private final ProductMapper productMapper;
     private final ProductSellerMapper productSellerMapper;
+    private final ProductAdminMapper productAdminMapper;
+    private final ReviewRepository reviewRepository;
 
     @Override
-    public List<ProductDTO> getNewestProducts(int limit) {
-        return productRepository.findAll().stream()
-                .sorted((p1, p2) -> Long.compare(p2.getMaSanPham(), p1.getMaSanPham()))
-                .limit(limit)
+    public List<ProductDTO> getNewestProducts(int limit, String excludeEmail) {
+        return productRepository.findNewestProducts(excludeEmail,
+                        org.springframework.data.domain.PageRequest.of(0, limit))
+                .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Page<ProductDTO> getBestSellingProducts(Pageable pageable) {
-        return productRepository.findBestSellingProducts(pageable)
+    public Page<ProductDTO> getBestSellingProducts(Pageable pageable, String excludeEmail) {
+        return productRepository.findBestSellingProducts(excludeEmail, pageable)
                 .map(this::convertToDTO);
     }
 
@@ -222,7 +225,7 @@ public class ProductServiceImpl implements ProductService {
         // Save
         productRepository.save(product);
 
-        emailService.guiEmailKichHoat(user.getEmail(),request.getLyDo() );
+        emailService.guiEmailTuChoi(user.getEmail(), request.getLyDo());
     }
 
     @Override
@@ -239,9 +242,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductSellerDTO> getProductsByUser(String email, Pageable pageable) {
-        User user =  userRepository.findByEmail(email).orElseThrow(() -> new BusinessException("Không tim thấy người dùng"));
-        Page<Product> products = productRepository.findByUser(user, pageable);
+    public Page<ProductSellerDTO> getProductsByUser(String email, SellerListingFilter filter, Pageable pageable) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException("Không tìm thấy người dùng"));
+
+        Page<Product> products = switch (filter == null ? SellerListingFilter.ALL : filter) {
+            case ACTIVE -> productRepository.findActiveListingsByUser(user, pageable);
+            case PENDING -> productRepository.findPendingByUser(user, pageable);
+            case SOLD_OUT -> productRepository.findSoldOutByUser(user, pageable);
+            default -> productRepository.findByUser(user, pageable);
+        };
+
         return products.map(productSellerMapper::toDTO);
     }
 
@@ -443,8 +454,30 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ProductSellerDTO getProductForManagement(long productId, boolean isAdmin) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "Không tìm thấy sản phẩm"));
+        return productSellerMapper.toDTO(product);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductAdminDTO> getProductsForAdmin(Pageable pageable, SellerListingFilter filter) {
+        Page<Product> products = switch (filter == null ? SellerListingFilter.ALL : filter) {
+            case ACTIVE  -> productRepository.findProductsActive(pageable);
+            case PENDING -> productRepository.findProductsPending(pageable);
+            case REJECTED -> productRepository.findProductsRejected(pageable);
+            case DEACTIVE -> productRepository.findProductsDeactive(pageable);
+            case SOLD_OUT -> productRepository.findProductSoldOut(pageable);
+            default -> productRepository.findAll(pageable);
+        };
+        return products.map(productAdminMapper::toDTO);
+    }
+
     private void verifyCanManageProduct(Product product, User user, boolean isAdmin) {
-        boolean isOwner = product.getUser().getMaNguoiDung()== user.getMaNguoiDung();
+        boolean isOwner = product.getUser().getMaNguoiDung() == user.getMaNguoiDung();
         if (!isAdmin && !isOwner) {
             throw new BusinessException(
                     HttpStatus.FORBIDDEN,
@@ -459,36 +492,67 @@ public class ProductServiceImpl implements ProductService {
         dto.setTenSanPham(product.getTenSanPham());
         dto.setGiaSanPham(product.getGiaSanPham());
         dto.setSoLuong(product.getSoLuong());
-        dto.setTenNguoiBan(product.getUser().getEmail());
-        dto.setMaNguoiBan(product.getUser().getMaNguoiDung());
-        dto.setEmail(product.getUser().getEmail());
-        
-        // Set category info
+
+        // Thông tin người bán
+        User seller = product.getUser();
+        String tenNguoiBan = ((seller.getHoDem() != null ? seller.getHoDem() : "")
+                + " " + (seller.getTen() != null ? seller.getTen() : "")).trim();
+        dto.setTenNguoiBan(tenNguoiBan.isBlank() ? seller.getEmail() : tenNguoiBan);
+        dto.setMaNguoiBan(seller.getMaNguoiDung());
+        dto.setEmail(seller.getEmail());
+        dto.setHinhAnhDaiDien(seller.getAvatar());
+
+        // Danh mục
         if (product.getCategory() != null) {
             dto.setTenTheLoai(product.getCategory().getTenTheLoai());
             dto.setMaTheLoai(product.getCategory().getMaTheLoai());
         }
-        
-        // Set status info
+
+        // Tình trạng
         if (product.getTinhTrang() != null) {
             dto.setMaTinhTrang(product.getTinhTrang().getMaTinhTrang());
             dto.setTenTinhTrang(product.getTinhTrang().getTenTinhTrang());
         }
 
-        // Map danh sách hình ảnh sản phẩm
+        // Hình ảnh sản phẩm
         if (product.getHinhAnhs() != null && !product.getHinhAnhs().isEmpty()) {
             List<String> hinhAnhs = product.getHinhAnhs().stream()
-                    .map(hinhAnh -> hinhAnh.getDuongDan())
+                    .map(h -> h.getDuongDan() != null && !h.getDuongDan().isBlank()
+                            ? h.getDuongDan() : h.getDuLieuAnh())
                     .collect(Collectors.toList());
             dto.setHinhAnhs(hinhAnhs);
-            
-            // Lấy ảnh đầu tiên của SẢN PHẨM làm ảnh đại diện
-            if (!hinhAnhs.isEmpty()) {
-                dto.setHinhAnhDaiDien(hinhAnhs.get(0));
-            }
+            dto.setHinhAnhDaiDien(hinhAnhs.get(0));
         } else {
             dto.setHinhAnhs(Collections.emptyList());
-            dto.setHinhAnhDaiDien(null);
+        }
+
+        // Đánh giá
+        List<Review> reviews = reviewRepository.findByProductMaSanPham(product.getMaSanPham());
+        dto.setSoLuongDanhGia(reviews.size());
+
+        if (!reviews.isEmpty()) {
+            double avg = reviews.stream()
+                    .mapToDouble(Review::getDiemXepHang)
+                    .average()
+                    .orElse(0.0);
+            dto.setDanhGia(avg);
+
+            List<ReviewDTO> reviewDTOs = reviews.stream().map(r -> {
+                ReviewDTO rdto = new ReviewDTO();
+                rdto.setMaDanhGia(r.getMaDanhGia());
+                rdto.setDiemXepHang(r.getDiemXepHang());
+                rdto.setNhanXet(r.getNhanXet());
+                rdto.setEmailNguoiDung(r.getUser().getEmail());
+                String ten = ((r.getUser().getHoDem() != null ? r.getUser().getHoDem() : "")
+                        + " " + (r.getUser().getTen() != null ? r.getUser().getTen() : "")).trim();
+                rdto.setTenNguoiDung(ten.isBlank() ? r.getUser().getEmail() : ten);
+                rdto.setAvatarNguoiDung(r.getUser().getAvatar());
+                return rdto;
+            }).collect(Collectors.toList());
+            dto.setDanhGias(reviewDTOs);
+        } else {
+            dto.setDanhGia(0.0);
+            dto.setDanhGias(Collections.emptyList());
         }
 
         return dto;

@@ -46,7 +46,7 @@ public class HomeController {
 
     @GetMapping("/products/newest")
     public ResponseEntity<ApiResponse<List<ProductDTO>>> getNewestProducts(@RequestParam(defaultValue = "10") int limit) {
-        return ApiResponse.ok("Lấy sản phẩm mới đăng thành công!", productService.getNewestProducts(limit));
+        return ApiResponse.ok("Lấy sản phẩm mới đăng thành công!", productService.getNewestProducts(limit, null));
     }
 
     @GetMapping("/products/best-selling")
@@ -54,7 +54,7 @@ public class HomeController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return ApiResponse.ok("Lấy sản phẩm bán chạy nhất thành công!", productService.getBestSellingProducts(pageable));
+        return ApiResponse.ok("Lấy sản phẩm bán chạy nhất thành công!", productService.getBestSellingProducts(pageable, null));
     }
 
     @GetMapping("/sellers/top-rated")

@@ -48,4 +48,42 @@ public class EmailServiceImpl implements EmailService {
         );
         mailSender.send(message);
     }
+
+    @Async
+    @Override
+    public void guiEmailTuChoi(String toEmail, String lyDo) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Sản phẩm của bạn đã bị từ chối");
+        message.setText(
+                "Chào bạn,\n\n" +
+                "Sản phẩm bạn đăng bán vừa bị từ chối.\n" +
+                "Lý do: " + lyDo + "\n\n" +
+                "Vui lòng chỉnh sửa và đăng lại.\n\n" +
+                "Trân trọng,\nWeb TMĐT Team"
+        );
+        mailSender.send(message);
+    }
+
+    @Async
+    @Override
+    public void guiEmailDonHangMoiChoSeller(String sellerEmail, String tenNguoiMua,
+                                             int maDonHang, String diaChi,
+                                             double tongTien, String chiTietSanPham) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(sellerEmail);
+        message.setSubject("Bạn có đơn hàng mới #" + maDonHang);
+        message.setText(
+                "Chào bạn,\n\n" +
+                "Bạn vừa nhận được đơn hàng mới!\n\n" +
+                "Mã đơn hàng: #" + maDonHang + "\n" +
+                "Người mua: " + tenNguoiMua + "\n" +
+                "Địa chỉ giao hàng: " + diaChi + "\n" +
+                "Tổng tiền: " + String.format("%,.0f", tongTien) + " VND\n\n" +
+                "Sản phẩm:\n" + chiTietSanPham + "\n" +
+                "Vui lòng vào hệ thống để xác nhận đơn hàng.\n\n" +
+                "Trân trọng,\nWeb TMĐT Team"
+        );
+        mailSender.send(message);
+    }
 }
