@@ -7,7 +7,6 @@ const axiosClient = axios.create({
     },
 });
 
-// Tự động gắn token vào header trước khi gửi request
 axiosClient.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
@@ -21,7 +20,7 @@ axiosClient.interceptors.request.use(
     },
 );
 
-// Xử lý khi token hết hạn (401)
+// Response interceptor: Xử lý khi token hết hạn (401)
 axiosClient.interceptors.response.use(
     (response) => {
         return response.data;
@@ -29,6 +28,7 @@ axiosClient.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
+        // Bắt lỗi 401 Unauthorized và đảm bảo chưa từng retry
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
@@ -36,15 +36,20 @@ axiosClient.interceptors.response.use(
                 const response = await axios.post(
                     `${import.meta.env.VITE_API_MAIN_URL}/auth/refresh-token`,
                     {},
-                    { withCredentials: true }, // Gửi kèm HttpOnly cookie chứa refresh token
+                    { withCredentials: true },
                 );
 
-                // API trả về form ApiResponse: { data: { token: "..." } }
-                const newToken = response.data?.data?.token || response.data?.token;
+                // API trả về access token mới (bạn nhớ check xem backend trả biến tên là gì nhé)
+                const newToken = response.data.token || response.data?.data?.token;
 
                 if (newToken) {
+                    // Lưu Access Token mới vào LocalStorage
                     localStorage.setItem("token", newToken);
+
+                    // Cập nhật lại cái token mới này vào cái request bị lỗi ban nãy
                     originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+                    // Gọi lại cái request ban nãy một lần nữa
                     return axiosClient(originalRequest);
                 }
             } catch (err) {
