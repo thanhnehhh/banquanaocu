@@ -12,48 +12,48 @@ import ForgotPassword from "@/pages/ForgotPassword/ForgotPassword";
 import VNPayReturn from "@/pages/VNPayReturn";
 
 const publicRoutes = [
-    {
-        index: true,
-        element: <Home />,
-    },
-    {
-        path: "login",
-        element: <Login />,
-    },
-    { path: "forgot-password", element: <ForgotPassword /> },
-    {
-        path: "register",
-        element: <Register />,
-    },
-    {
-        path: "checkout",
-        element: <Checkout />,
-    },
-    {
-        path: "search",
-        element: <ProductSearch />,
-    },
-    {
-        path: "cart",
-        element: <Cart />,
-    },
-    {
-        path: "/product/:id",
-        element: <ProductDetail />,
-    },
+  {
+    index: true,
+    element: <Home />,
+  },
+  {
+    path: "login",
+    element: <Login />,
+  },
+  { path: "forgot-password", element: <ForgotPassword /> },
+  {
+    path: "register",
+    element: <Register />,
+  },
+  {
+    path: "checkout",
+    element: <Checkout />,
+  },
+  {
+    path: "search",
+    element: <ProductSearch />,
+  },
+  {
+    path: "cart",
+    element: <Cart />,
+  },
+  {
+    path: "/product/:id",
+    element: <ProductDetail />,
+  },
 
-    {
-        path: "*",
-        element: <NotFoundPage />,
-    },
-    {
-        path: "/kich-hoat/:maKichHoat",
-        element: <KichHoatTaiKhoan />,
-    },
-    {
-        path: "/payment/vnpay/return",
-        element: <VNPayReturn />,
-    },
+  {
+    path: "*",
+    element: <NotFoundPage />,
+  },
+  {
+    path: "/kich-hoat/:maKichHoat",
+    element: <KichHoatTaiKhoan />,
+  },
+  {
+    path: "/payment/vnpay/return",
+    element: <VNPayReturn />,
+  },
 ];
 
 export default publicRoutes;
