@@ -32,5 +32,5 @@ build/
 ### VS Code ###
 .vscode/
 
-Backend/src/main/resources/application-dev.properties
-Backend/src/main/resources/application-oauth2.properties
+src/main/resources/application-dev.properties
+src/main/resources/application-oauth2.properties
