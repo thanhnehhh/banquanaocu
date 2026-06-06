@@ -42,21 +42,23 @@ const ProductDetail: React.FC = () => {
 
     getProductDetail(id)
       .then((res) => {
-        const productData = (res as unknown as { data: ProductDetailDTO }).data || res;
-        setProduct(productData as unknown as ProductDetailDTO);
+        // axiosClient interceptor return ApiResponse: { success, message, data: ProductDetailDTO }
+        const productData = (res as any)?.data ?? res;
+        setProduct(productData as ProductDetailDTO);
         setSelectedImage(0);
 
         // Fetch sản phẩm cùng shop
-        if ((productData as unknown as ProductDetailDTO).maNguoiBan) {
+        if ((productData as ProductDetailDTO).maNguoiBan) {
           setLoadingShop(true);
           getProductsBySellerId(
-            (productData as unknown as ProductDetailDTO).maNguoiBan,
+            (productData as ProductDetailDTO).maNguoiBan,
             Number(id),
             8
           )
-            .then((r) => {
-              const items = (r as unknown as { data: { data: Product[] } }).data?.data || [];
-              setShopProducts(items);
+            .then((r: any) => {
+              // homeService API unwrap về response.data → đây là ApiResponse
+              const items = r?.data?.data ?? r?.data ?? r ?? [];
+              setShopProducts(Array.isArray(items) ? items : []);
             })
             .catch(() => setShopProducts([]))
             .finally(() => setLoadingShop(false));
@@ -65,9 +67,9 @@ const ProductDetail: React.FC = () => {
         // Fetch AI gợi ý
         setLoadingAI(true);
         getAISuggestions({
-          tenSanPham: (productData as unknown as ProductDetailDTO).tenSanPham,
-          tenTheLoai: (productData as unknown as ProductDetailDTO).tenTheLoai,
-          giaSanPham: (productData as unknown as ProductDetailDTO).giaSanPham,
+          tenSanPham: (productData as ProductDetailDTO).tenSanPham,
+          tenTheLoai: (productData as ProductDetailDTO).tenTheLoai,
+          giaSanPham: (productData as ProductDetailDTO).giaSanPham,
         })
           .then(setAiSuggestions)
           .catch(() => setAiSuggestions([]))

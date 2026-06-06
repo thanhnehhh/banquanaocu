@@ -111,6 +111,30 @@ public class UserServiceImpl implements UserService {
 
             roleRepository.findByTenQuyen("ROLE_USER").ifPresent(role -> newUser.setRoles(List.of(role)));
             userRepository.save(newUser);
+        } else {
+            // Cập nhật thông tin nếu user đã tồn tại nhưng thiếu dữ liệu Google
+            User user = existUser.get();
+            boolean needUpdate = false;
+
+            if (avatar != null && !avatar.isEmpty()
+                    && (user.getAvatar() == null || user.getAvatar().isEmpty())) {
+                user.setAvatar(avatar);
+                needUpdate = true;
+            }
+            if (googleId != null && !googleId.isEmpty()
+                    && (user.getGoogleId() == null || user.getGoogleId().isEmpty())) {
+                user.setGoogleId(googleId);
+                needUpdate = true;
+            }
+            if (name != null && !name.isEmpty()
+                    && (user.getTen() == null || user.getTen().isEmpty())) {
+                user.setTen(name);
+                needUpdate = true;
+            }
+
+            if (needUpdate) {
+                userRepository.save(user);
+            }
         }
     }
 

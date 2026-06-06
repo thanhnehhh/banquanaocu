@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/home")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class HomeController {
 
     private final ProductService productService;
@@ -45,16 +44,19 @@ public class HomeController {
     }
 
     @GetMapping("/products/newest")
-    public ResponseEntity<ApiResponse<List<ProductDTO>>> getNewestProducts(@RequestParam(defaultValue = "10") int limit) {
-        return ApiResponse.ok("Lấy sản phẩm mới đăng thành công!", productService.getNewestProducts(limit, null));
+    public ResponseEntity<ApiResponse<List<ProductDTO>>> getNewestProducts(
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(required = false) String excludeEmail) {
+        return ApiResponse.ok("Lấy sản phẩm mới đăng thành công!", productService.getNewestProducts(limit, excludeEmail));
     }
 
     @GetMapping("/products/best-selling")
     public ResponseEntity<ApiResponse<Page<ProductDTO>>> getBestSellingProducts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String excludeEmail) {
         Pageable pageable = PageRequest.of(page, size);
-        return ApiResponse.ok("Lấy sản phẩm bán chạy nhất thành công!", productService.getBestSellingProducts(pageable, null));
+        return ApiResponse.ok("Lấy sản phẩm bán chạy nhất thành công!", productService.getBestSellingProducts(pageable, excludeEmail));
     }
 
     @GetMapping("/sellers/top-rated")

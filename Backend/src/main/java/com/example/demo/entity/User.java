@@ -98,4 +98,13 @@ public class User {
             CascadeType.DETACH,
     })
     private List<Review> reviews;
+
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"user"})
+    @JsonIgnore // Không cho Jackson serialize list đơn hàng khi đang gọi thông tin Ví
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = {
+            CascadeType.REFRESH,
+            CascadeType.MERGE,
+            CascadeType.DETACH,
+    })
+    private List<DonHang> donHangs;
 }

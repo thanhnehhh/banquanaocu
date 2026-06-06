@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/thong-ke")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true", maxAge = 3600)
 @RequiredArgsConstructor
 public class ThongKeController {
 
