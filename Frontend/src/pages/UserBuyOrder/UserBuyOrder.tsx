@@ -6,8 +6,9 @@ import { X } from "lucide-react";
 
 const tabs = [
   "Tất cả",
-  "Chờ xác nhận",
-  "Đang giao",
+  "Chờ duyệt",
+  "Đã duyệt",
+  "Đã thanh toán",
   "Hoàn thành",
   "Đã hủy",
 ] as const;
@@ -15,10 +16,11 @@ const tabs = [
 type Tab = (typeof tabs)[number];
 
 const statusColor: Record<string, string> = {
-  "Chờ xác nhận": "bg-[#FFF4E5] text-[#C2781F]",
-  "Đang giao":    "bg-[#E8F2F7] text-[#2C5A78]",
-  "Hoàn thành":   "bg-[#E8F5EB] text-[#2B6C3F]",
-  "Đã hủy":       "bg-[#FDE8E8] text-[#9D2B2B]",
+  "Chờ duyệt":      "bg-[#FFF4E5] text-[#C2781F]",
+  "Đã duyệt":       "bg-[#EEF2FF] text-[#3730A3]",
+  "Đã thanh toán":  "bg-[#E8F2F7] text-[#2C5A78]",
+  "Hoàn thành":     "bg-[#E8F5EB] text-[#2B6C3F]",
+  "Đã hủy":         "bg-[#FDE8E8] text-[#9D2B2B]",
 };
 
 const LY_DO_HUY_PHO_BIEN = [
@@ -57,7 +59,12 @@ function UserBuyOrder() {
   const fetchOrders = () => {
     setLoading(true);
     getDonHangCuaUser()
-      .then((res) => setOrders(res.data))
+      .then((res: any) => {
+        // axiosClient interceptor return response.data (ApiResponse)
+        // BE trả về: { success, message, data: DonHangDTO[] }
+        const list = res?.data ?? res;
+        setOrders(Array.isArray(list) ? list : []);
+      })
       .catch(() => setOrders([]))
       .finally(() => setLoading(false));
   };
@@ -115,10 +122,11 @@ function UserBuyOrder() {
     setCancelling(true);
     setCancelError(null);
     try {
-      const res = await huyDonHang(cancelOrderId, lyDo);
-      // Cập nhật lại order trong state
+      const res: any = await huyDonHang(cancelOrderId, lyDo);
+      // axiosClient interceptor return ApiResponse, lấy .data
+      const updated = res?.data ?? res;
       setOrders((prev) =>
-        prev.map((o) => (o.maDonHang === cancelOrderId ? res.data : o)),
+        prev.map((o) => (o.maDonHang === cancelOrderId ? updated : o)),
       );
       closeCancelModal();
     } catch {
@@ -221,6 +229,11 @@ function UserBuyOrder() {
                   <p className="text-xs text-slate-500 truncate">
                     Địa chỉ: {order.diaChiNhanHang}
                   </p>
+                  {order.tenNguoiBan && (
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Người bán: <span className="font-medium">{order.tenNguoiBan}</span>
+                    </p>
+                  )}
                   {order.trangThai === "Đã hủy" && order.lyDoHuy && (
                     <p className="text-xs text-red-500 mt-1">
                       Lý do hủy: {order.lyDoHuy}
@@ -228,8 +241,8 @@ function UserBuyOrder() {
                   )}
                 </div>
                 <div className="flex items-center gap-4 flex-shrink-0">
-                  {/* Nút hủy đơn — chỉ hiện khi "Chờ xác nhận" */}
-                  {order.trangThai === "Chờ xác nhận" && (
+                  {/* Nút hủy đơn — chỉ hiện khi "Chờ duyệt" */}
+                  {order.trangThai === "Chờ duyệt" && (
                     <button
                       onClick={() => openCancelModal(order.maDonHang)}
                       className="text-sm text-red-500 hover:text-red-700 font-medium border border-red-200 px-4 py-1.5 rounded-full hover:bg-red-50 transition"

@@ -21,7 +21,6 @@ const initialState: CartState = {
   error: null,
 };
 
-// Async thunks
 export const fetchCart = createAsyncThunk("cart/fetchCart", async () => {
   const res = await getCart();
   return res.data;
@@ -69,10 +68,7 @@ const cartSlice = createSlice({
       state.loading = true;
       state.error = null;
     };
-    const handleFulfilled = (
-      state: CartState,
-      action: PayloadAction<CartDTO>,
-    ) => {
+    const handleFulfilled = (state: CartState, action: PayloadAction<CartDTO>) => {
       state.loading = false;
       state.cart = action.payload;
     };

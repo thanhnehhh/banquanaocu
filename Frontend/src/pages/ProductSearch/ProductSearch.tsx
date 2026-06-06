@@ -1,8 +1,9 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { addItemToCart } from "@/redux/cartSlice/cartSlice";
 import type { AppDispatch } from "@/redux/store";
 import { ShoppingCart } from "lucide-react";
+import publicAxios from "@/service/publicAxios";
 
 interface Product {
   maSanPham: number;
@@ -15,15 +16,8 @@ interface Product {
   maTinhTrang?: number;
 }
 
-interface Category {
-  maTheLoai: number;
-  tenTheLoai: string;
-}
-
-interface Status {
-  maTinhTrang: number;
-  tenTinhTrang: string;
-}
+interface Category { maTheLoai: number; tenTheLoai: string; }
+interface Status { maTinhTrang: number; tenTinhTrang: string; }
 
 const ProductSearch = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -46,28 +40,25 @@ const ProductSearch = () => {
 
   // Load initial data
   useEffect(() => {
-    // Lấy danh sách sản phẩm
-    fetch("http://localhost:8080/api/products/search")
-      .then((res) => res.json())
-      .then((data) => {
-        const productsData = data.data.content || [];
+    // Lấy danh sách sản phẩm — dùng publicAxios thay vì hardcode URL
+    publicAxios.get(`/products/search`)
+      .then((data: any) => {
+        const productsData = data?.data?.content ?? data?.content ?? [];
         setAllProducts(productsData);
         setProducts(productsData);
       })
-      .catch((err) => console.error("Lỗi products:", err));
+      .catch((err: any) => console.error("Lỗi products:", err));
 
     // Lấy danh mục + tình trạng
     Promise.all([
-      fetch("http://localhost:8080/api/home/categories").then((res) =>
-        res.json(),
-      ),
-      fetch("http://localhost:8080/api/statuses").then((res) => res.json()),
+      publicAxios.get(`/home/categories`),
+      publicAxios.get(`/statuses`),
     ])
-      .then(([categoryData, statusData]) => {
-        setCategories(categoryData.data || []);
-        setStatuses(statusData.data || []);
+      .then(([categoryData, statusData]: any[]) => {
+        setCategories(categoryData?.data ?? categoryData ?? []);
+        setStatuses(statusData?.data ?? statusData ?? []);
       })
-      .catch((err) => console.error("Lỗi filters:", err));
+      .catch((err: any) => console.error("Lỗi filters:", err));
   }, []);
 
   // Apply filters and search

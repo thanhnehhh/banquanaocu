@@ -7,7 +7,7 @@ public class Endpoints {
             "/api/auth/kich-hoat",
             "/api/home/**",
             "/api/oauth2/**",
-            "/api/users/profile",
+            "/api/users/profile",  // legacy path - UserController thực ở /api/user/profile (cần auth)
             "/api/files/**",
             "/api/products/search",
             "/api/categories/**",

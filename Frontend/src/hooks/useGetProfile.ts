@@ -11,29 +11,30 @@ export function useGetProfile() {
   return function getProfile(token: string): void {
     const decodedToken = jwtDecode(token) as Token;
     axiosClient
-        .get(`/user/profile`)
-        .then((response) => {
-          const data = response.data;
-          const userInfo: User = {
-            email: data.email,
-            role: decodedToken.roles,
-            token: decodedToken,
-            avatar: data.avatar || "",
-            name: data.ten || "",
-            gioiTinh: data.gioiTinh || "",
-            phone: data.soDienThoai || "",
-            hobby: data.hobby || "",
-            createAt: data.ngayDangKy || "",
-            birthday: data.birthDay || "",
-            address: data.diaChi || "",
-            hoDem: data.hoDem || "",
-            googleId: data.googleId || "",
-          };
-
-          dispatch(authSlice.actions.login(userInfo));
-        })
-        .catch((error) => {
-          console.error("Failed to fetch user profile:", error);
-        });
+      .get(`/user/profile`)
+      .then((response: any) => {
+        // axiosClient interceptor return response.data (ApiResponse)
+        // BE trả về: { success, message, data: UserProfileResponse }
+        const profile = response?.data ?? response;
+        const userInfo: User = {
+          email: profile.email,
+          role: decodedToken.roles,
+          token: decodedToken,
+          avatar: profile.avatar || "",
+          name: profile.ten || "",
+          gioiTinh: profile.gioiTinh ? String(profile.gioiTinh) : "",
+          phone: profile.soDienThoai || "",
+          hobby: profile.hobby || "",
+          createAt: profile.ngayDangKy || "",
+          birthday: profile.birthDay || "",
+          address: profile.diaChi || "",
+          hoDem: profile.hoDem || "",
+          googleId: profile.googleId || "",
+        };
+        dispatch(authSlice.actions.login(userInfo));
+      })
+      .catch((error) => {
+        console.error("Failed to fetch user profile:", error);
+      });
   };
 }

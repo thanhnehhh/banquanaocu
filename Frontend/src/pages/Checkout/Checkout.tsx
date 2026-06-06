@@ -100,20 +100,23 @@ const Checkout = () => {
     setError(null);
 
     try {
-      // Bước 1: Tạo đơn hàng
-      const res = await taoDonHang({
+      // Bước 1: Tạo đơn hàng — BE trả ApiResponse { data: DonHangDTO[] }
+      const res: any = await taoDonHang({
         diaChiNhanHang: `${shipping.hoTen} | ${shipping.soDienThoai} | ${diaChi}`,
         chiPhiGiaoHang: SHIPPING_FEE,
         phuongThucThanhToan: payment === "vnpay" ? "VNPAY" : "COD",
       });
 
-      const maDonHang = res.data[0]?.maDonHang; // lấy đơn đầu tiên để redirect
+      // axiosClient interceptor unwrap → res = ApiResponse, lấy res.data
+      const donHangs = res?.data ?? res;
+      const maDonHang = Array.isArray(donHangs) ? donHangs[0]?.maDonHang : donHangs?.maDonHang;
 
       if (payment === "vnpay") {
-        // Thanh toán VNPAY: lấy URL rồi redirect (dùng đơn đầu tiên)
-        const vnpRes = await taoUrlThanhToanVNPay(maDonHang);
+        // Thanh toán VNPAY: lấy URL rồi redirect
+        const vnpRes: any = await taoUrlThanhToanVNPay(maDonHang);
+        const paymentUrl = vnpRes?.data?.paymentUrl ?? vnpRes?.paymentUrl;
         dispatch(resetCart());
-        window.location.href = vnpRes.data.paymentUrl;
+        window.location.href = paymentUrl;
       } else {
         // COD → về trang đơn mua
         dispatch(resetCart());
