@@ -15,6 +15,7 @@ public class Endpoints {
             "/api/payment/vnpay/ipn",
             "/api/comments",        // Xem bình luận không cần đăng nhập
             "/api/order-statuses",  // Lấy danh sách trạng thái đơn hàng
+            "/api/search/**",       // Tìm kiếm public
     };
 
     public static final String[] PUBLIC_POST_ENDPOINTS = new String[] {
@@ -24,6 +25,11 @@ public class Endpoints {
             "/api/auth/quen-mat-khau",
             "/api/auth/xac-nhan-otp",
             "/api/auth/dat-lai-mat-khau",
+    };
+
+    // WebSocket endpoints (SockJS cần GET + POST)
+    public static final String[] WEBSOCKET_ENDPOINTS = new String[] {
+            "/app_socket/**",
     };
 
     public static final String[] PRIVATE_GET_ENDPOINT = new String[] {

@@ -107,4 +107,8 @@ public class User {
             CascadeType.DETACH,
     })
     private List<DonHang> donHangs;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
+    private List<Conversation> conversations;
 }

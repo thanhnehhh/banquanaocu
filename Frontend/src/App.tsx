@@ -5,7 +5,8 @@ import { useGetProfile } from "@/hooks/useGetProfile";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "@/redux/store";
 import { fetchCart } from "@/redux/cartSlice/cartSlice";
-import { connectSocket, disconnectSocket } from "./websocket/chatSocket";
+// WebSocket chat chỉ hoạt động khi BE có ConversationController
+// import { connectSocket, disconnectSocket } from "./websocket/chatSocket";
 
 function App() {
   const getProfile = useGetProfile();
@@ -17,11 +18,9 @@ function App() {
       getProfile(token);
       dispatch(fetchCart());
     }
-    connectSocket();
-
-    return () => {
-      disconnectSocket();
-    };
+    // Tạm tắt WebSocket vì banquanaocu BE chưa có chat endpoint
+    // connectSocket();
+    // return () => { disconnectSocket(); };
   }, []);
 
   return <RouterProvider router={router} />;

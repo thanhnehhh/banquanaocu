@@ -4,7 +4,7 @@ import axiosClient from "@/service/axiosClient";
 import ListCategory from "@/pages/AdminPostProduct/ListCategory/ListCategory";
 import ListCondition from "@/pages/AdminPostProduct/ListCondition/ListCondition";
 import ImageEditor from "./ImageEditor";
-import supabase from "@/lib/supabaseClient";
+import { uploadProductImage } from "@/service/productPostService";
 import Loading from "@/components/common/Loading";
 
 function EditModal({ productId, setEditModal, setSuccess, setData, setReload }: any) {
@@ -27,11 +27,9 @@ function EditModal({ productId, setEditModal, setSuccess, setData, setReload }: 
     try {
       const uploadedImages = await Promise.all(images.map(async (img: any) => {
         if (!img.file) return { maHinhAnh: img.maHinhAnh, tenHinhAnh: img.tenHinhAnh, duongDan: img.duongDan };
-        const fileName = `${Date.now()}_${img.tenHinhAnh}`;
-        const { error } = await supabase.storage.from("product").upload(fileName, img.file);
-        if (error) throw error;
-        const { data } = supabase.storage.from("product").getPublicUrl(fileName);
-        return { maHinhAnh: img.maHinhAnh, tenAnh: img.tenHinhAnh, duongDan: data.publicUrl };
+        // Dùng uploadProductImage — tự fallback base64 nếu Supabase chưa config
+        const duongDan = await uploadProductImage(img.file);
+        return { maHinhAnh: img.maHinhAnh, tenAnh: img.tenHinhAnh, duongDan };
       }));
       const payload = { ...form, images: uploadedImages, deleteImageIds: deleteImage };
       const res = await axiosClient.put(`/products/${productId}`, payload);

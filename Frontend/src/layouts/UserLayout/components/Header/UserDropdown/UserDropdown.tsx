@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, LogOut, User, MessageCircle, Landmark, TicketCheck, Bell, CirclePlus, List, Van, Heart, ShoppingCart } from "lucide-react";
 import { useDispatch } from "react-redux";
 import authSlice from "@/redux/authSlice/authSlice";
+import { resetCart } from "@/redux/cartSlice/cartSlice";
 import { useState } from "react";
 import Loading from "@/components/common/Loading";
 import { disconnectSocket } from "@/websocket/chatSocket";
