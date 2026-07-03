@@ -25,7 +25,13 @@ function ListProductTable() {
   const fetchProducts = (page: number) => {
     setLoading(true); setError(null);
     axiosClient.get("/products/admin", { params: { page, size: PAGE_SIZE } })
-      .then((res) => { const p = (res as any).data; setData(p.content || []); setTotalPages(p.totalPages ?? 1); setCurrentPage(p.number ?? page); })
+      .then((res: any) => {
+        // axiosClient interceptor return ApiResponse → res = { success, message, data: Page }
+        const pageData = res?.data ?? res;
+        setData(pageData?.content || []);
+        setTotalPages(pageData?.totalPages ?? 1);
+        setCurrentPage(pageData?.number ?? page);
+      })
       .catch(() => setError("Lỗi khi tải dữ liệu sản phẩm"))
       .finally(() => setLoading(false));
   };

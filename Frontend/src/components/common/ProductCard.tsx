@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { ShoppingCart, CheckCircle, XCircle } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { addItemToCart } from "@/redux/cartSlice/cartSlice";
 import type { AppDispatch, RootState } from "@/redux/store";
 
@@ -34,14 +35,14 @@ const ProductCard = ({ id, title, price, seller, image, tag, maxQuantity = 1 }: 
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated) {
-      showToast("error", "Vui lòng đăng nhập để thêm vào giỏ hàng!");
+      showToast("error", "Không thể thêm vào giỏ hàng. Vui lòng đăng nhập!");
       setTimeout(() => navigate("/login"), 1200);
       return;
     }
     setIsAdding(true);
     try {
       await dispatch(addItemToCart({ maSanPham: id, soLuong: quantity })).unwrap();
-      showToast("success", `Đã thêm vào giỏ hàng!`);
+      showToast("success", `Đã thêm "${title}" vào giỏ hàng!`);
       setQuantity(1);
     } catch {
       showToast("error", "Không thể thêm vào giỏ hàng. Vui lòng thử lại!");
@@ -52,12 +53,16 @@ const ProductCard = ({ id, title, price, seller, image, tag, maxQuantity = 1 }: 
 
   return (
     <div className="block cursor-pointer group relative">
-      {toast.type && (
-        <div className={`absolute -top-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg text-white text-xs font-medium whitespace-nowrap ${toast.type === "success" ? "bg-[#49613E]" : "bg-red-500"}`}>
-          {toast.type === "success" ? <CheckCircle size={14} /> : <XCircle size={14} />}
-          {toast.msg}
-        </div>
+      {/* Toast dùng createPortal — hiển thị fixed, không bị che bởi overflow:hidden */}
+      {toast.type && createPortal(
+        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transition-all
+            ${toast.type === "success" ? "bg-[#49613E]" : "bg-red-500"}`}
+        >
+          {toast.type === "success" ? "✓" : "✕"} {toast.msg}
+        </div>,
+        document.body
       )}
+
       <Link to={`/product/${id}`} className="space-y-2 block">
         <div className="relative rounded-xl overflow-hidden">
           {tag && <span className="absolute top-2 left-2 bg-white text-xs px-2 py-1 rounded-full z-10">{tag}</span>}
@@ -67,13 +72,19 @@ const ProductCard = ({ id, title, price, seller, image, tag, maxQuantity = 1 }: 
         <p className="font-semibold">{price}</p>
         <p className="text-xs text-gray-500">by {seller}</p>
       </Link>
+
       <div className="flex gap-2 mt-3" onClick={(e) => e.preventDefault()}>
-        <input type="number" min="1" max={maxQuantity} value={quantity}
+        <input
+          type="number" min="1" max={maxQuantity} value={quantity}
           onChange={(e) => { e.stopPropagation(); setQuantity(Math.max(1, Math.min(parseInt(e.target.value) || 1, maxQuantity))); }}
           onClick={(e) => e.stopPropagation()}
-          className="w-12 border border-gray-300 rounded px-2 py-1 text-center text-xs focus:outline-none focus:border-[#49613E]" />
-        <button onClick={handleAddToCart} disabled={isAdding || maxQuantity === 0}
-          className="flex-1 flex items-center justify-center bg-[#49613E] text-white text-xs font-semibold rounded py-1 hover:bg-[#3a4d31] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+          className="w-12 border border-gray-300 rounded px-2 py-1 text-center text-xs focus:outline-none focus:border-[#49613E]"
+        />
+        <button
+          onClick={handleAddToCart}
+          disabled={isAdding || maxQuantity === 0}
+          className="flex-1 flex items-center justify-center bg-[#49613E] text-white text-xs font-semibold rounded py-1 hover:bg-[#3a4d31] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
           {maxQuantity === 0 ? "Hết hàng" : isAdding ? "..." : <ShoppingCart size={16} />}
         </button>
       </div>

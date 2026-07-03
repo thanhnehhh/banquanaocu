@@ -61,6 +61,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
+                // ── WebSocket (SockJS) ─────────────────────────────────────────
+                .requestMatchers(Endpoints.WEBSOCKET_ENDPOINTS).permitAll()
+
                 // ── Public ────────────────────────────────────────────────────
                 .requestMatchers(HttpMethod.GET, Endpoints.PUBLIC_GET_ENDPOINTS).permitAll()
                 .requestMatchers(HttpMethod.POST, Endpoints.PUBLIC_POST_ENDPOINTS).permitAll()

@@ -7,15 +7,18 @@ export interface ChatState {
 
 export interface UserResponse {
   maNguoiDung: number;
+  hoDem?: string;
+  ten?: string;
   email: string;
+  avatar?: string;
 }
 
 export interface MessageChat {
   conversationId: number;
-  conversationName: string;
+  name?: string;
   members: UserResponse[];
   isGroup: boolean;
-  createAd: string;
+  createdAt: string;
   messages: Message[];
   currentPage: number;
   totalPages: number;
@@ -23,11 +26,11 @@ export interface MessageChat {
 }
 
 export interface Message {
-  id: number;
+  messageId: number;
   content: string;
   sentAt: string;
-  senderId: number;
-  conversationId?: number;
+  sender: UserResponse;
+  conversationId: number;
 }
 
 const initialState: ChatState = {
