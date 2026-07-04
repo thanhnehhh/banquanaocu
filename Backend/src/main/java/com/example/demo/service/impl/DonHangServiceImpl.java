@@ -34,6 +34,8 @@ public class DonHangServiceImpl implements DonHangService {
     private final UserRepository userRepository;
     private final TrangThaiDonHangRepository trangThaiDonHangRepository;
     private final GiaoDichRepository giaoDichRepository;
+    private final ProductRepository productRepository;
+    private final GiaoDichRepository giaoDichRepository;
     private final com.example.demo.dao.ProductRepository productRepository;
     private final EmailService emailService;
 
@@ -410,6 +412,29 @@ public class DonHangServiceImpl implements DonHangService {
         return convertToDTO(donHang, donHang.getChiTietDonHangs());
     }
 
+    @Override
+    @Transactional
+    public DonHangDTO updateOrderStatus(int maDonHang, String trangThaiMoi) {
+        DonHang donHang = donHangRepository.findByIdWithDetails(maDonHang)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        TrangThaiDonHang trangThai = trangThaiDonHangRepository.findByTenTrangThai(trangThaiMoi)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy trạng thái: " + trangThaiMoi));
+
+        String oldStatus = donHang.getTrangThaiDonHang() != null
+                ? donHang.getTrangThaiDonHang().getTenTrangThai() : "";
+
+        donHang.setTrangThaiDonHang(trangThai);
+        donHangRepository.save(donHang);
+
+        // Nếu chuyển sang Thành công thì cộng tiền vào ví seller
+        if ("Thành công".equals(trangThaiMoi) && !"Thành công".equals(oldStatus)) {
+            xuLyGiaoDichThanhCong(donHang);
+        }
+
+        return convertToDTO(donHang, donHang.getChiTietDonHangs());
+    }
+
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private DonHangDTO convertToDTO(DonHang dh, List<ChiTietDonHang> chiTietList) {
@@ -429,6 +454,8 @@ public class DonHangServiceImpl implements DonHangService {
         // Tên người mua
         if (dh.getUser() != null) {
             dto.setTenKhachHang(buildTenNguoiDung(dh.getUser()));
+            dto.setEmailKhachHang(dh.getUser().getEmail());
+            dto.setSdtKhachHang(dh.getUser().getSoDienThoai());
         }
 
         // Tên người bán — lấy từ sản phẩm đầu tiên trong đơn
@@ -438,9 +465,10 @@ public class DonHangServiceImpl implements DonHangService {
                 User seller = firstProduct.getUser();
                 dto.setTenNguoiBan(buildTenNguoiDung(seller));
                 dto.setEmailNguoiBan(seller.getEmail());
+                dto.setTenShop(buildTenNguoiDung(seller));
+                dto.setSdtShop(seller.getSoDienThoai());
             }
         }
-
         // Chi tiết sản phẩm
         List<ChiTietDonHangDTO> ctDTOs = new ArrayList<>();
         if (chiTietList != null) {
@@ -471,5 +499,33 @@ public class DonHangServiceImpl implements DonHangService {
         String ten = ((user.getHoDem() != null ? user.getHoDem() : "")
                 + " " + (user.getTen() != null ? user.getTen() : "")).trim();
         return ten.isBlank() ? user.getEmail() : ten;
+    }
+
+    private void xuLyGiaoDichThanhCong(DonHang donHang) {
+        if (donHang.getChiTietDonHangs() == null) return;
+        for (ChiTietDonHang ct : donHang.getChiTietDonHangs()) {
+            Product sanPham = ct.getProduct();
+            if (sanPham == null) continue;
+            User seller = sanPham.getUser();
+            if (seller == null) continue;
+
+            double soTienCong = ct.getGiaBan() * ct.getSoLuong() * 0.95;
+            double soDuHienTai = seller.getSoDu() != null ? seller.getSoDu() : 0.0;
+            seller.setSoDu(soDuHienTai + soTienCong);
+            userRepository.save(seller);
+
+            com.example.demo.entity.GiaoDich giaoDich = new com.example.demo.entity.GiaoDich();
+            giaoDich.setUser(seller);
+            giaoDich.setSoTien(soTienCong);
+            giaoDich.setLoaiGiaoDich("inflow");
+            giaoDich.setTrangThai("Thành công");
+            giaoDich.setMoTa("Tiền bán sản phẩm (95%): " + sanPham.getTenSanPham()
+                    + " (Đơn #" + donHang.getMaDonHang() + ")");
+            giaoDichRepository.save(giaoDich);
+
+            sanPham.setSoLuongDaBan(sanPham.getSoLuongDaBan() + ct.getSoLuong());
+            sanPham.setSoLuong(Math.max(0, sanPham.getSoLuong() - ct.getSoLuong()));
+            productRepository.save(sanPham);
+        }
     }
 }

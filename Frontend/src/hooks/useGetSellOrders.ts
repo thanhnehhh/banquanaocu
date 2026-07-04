@@ -20,8 +20,16 @@ export interface DonHangDTO {
   tongTien: number;
   trangThai: string;
   lyDoHuy?: string;
+  phuongThucThanhToan?: string;
+  maDonHangCha?: number;
   chiTiet: ChiTietDonHangDTO[];
   tenKhachHang?: string;
+  emailKhachHang?: string;
+  sdtKhachHang?: string;
+  tenNguoiBan?: string;
+  emailNguoiBan?: string;
+  tenShop?: string;
+  sdtShop?: string;
 }
 
 interface ApiResponse<T> {

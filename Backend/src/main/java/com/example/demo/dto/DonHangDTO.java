@@ -33,9 +33,17 @@ public class DonHangDTO {
 
     private String tenKhachHang;
 
+    private String emailKhachHang;
+
+    private String sdtKhachHang;
+
     private String tenNguoiBan;
 
     private String emailNguoiBan;
+
+    private String tenShop;
+
+    private String sdtShop;
 
     private List<ChiTietDonHangDTO> chiTiet;
 }

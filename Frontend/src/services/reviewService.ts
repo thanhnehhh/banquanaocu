@@ -22,3 +22,8 @@ export const kiemTraDaDanhGia = (maSanPham: number) =>
   axiosClient.get<unknown, { data: { daDanhGia: boolean } }>(
     `/reviews/check?maSanPham=${maSanPham}`
   );
+
+export const kiemTraCoTheDanhGia = (maSanPham: number) =>
+  axiosClient.get<unknown, { data: { coTheDanhGia: boolean } }>(
+    `/reviews/can-review?maSanPham=${maSanPham}`
+  );

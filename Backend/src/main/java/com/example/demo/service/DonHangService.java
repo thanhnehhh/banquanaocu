@@ -20,6 +20,9 @@ public interface DonHangService {
     /** Người mua hủy đơn hàng */
     DonHangDTO huyDonHang(String email, int maDonHang, String lyDoHuy);
 
+    /** Admin: Cập nhật trạng thái đơn hàng sang trạng thái bất kỳ */
+    DonHangDTO updateOrderStatus(int maDonHang, String trangThaiMoi);
+
     /** Hoàn thành đơn hàng (legacy — giữ lại để không phá code cũ) */
     DonHangDTO hoanThanhDonHang(String email, int maDonHang);
 

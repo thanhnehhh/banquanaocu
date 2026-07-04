@@ -88,4 +88,20 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewRepository.existsByProductMaSanPhamAndUserMaNguoiDung(
                 maSanPham, user.getMaNguoiDung());
     }
+
+    @Override
+    public boolean coTheDanhGia(String email, long maSanPham) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+        List<DonHang> donHangs = donHangRepository
+                .findByUserMaNguoiDungOrderByNgayTaoDesc(user.getMaNguoiDung());
+
+        return donHangs.stream()
+                .filter(dh -> dh.getTrangThaiDonHang() != null
+                        && ("Thành công".equals(dh.getTrangThaiDonHang().getTenTrangThai())
+                        || "Đã duyệt".equals(dh.getTrangThaiDonHang().getTenTrangThai())))
+                .flatMap(dh -> dh.getChiTietDonHangs().stream())
+                .anyMatch(ct -> ct.getProduct().getMaSanPham().equals(maSanPham));
+    }
 }

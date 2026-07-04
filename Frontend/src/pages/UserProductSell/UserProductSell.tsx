@@ -5,9 +5,32 @@ import UserProductSellEditModal from "./components/UserProductSellEditModal";
 import { activateSellerProduct, deactivateSellerProduct, getSellerProducts, mapSellerProductToCard, patchSellProduct, updateSellerProduct, type SellProduct, type SellerListingFilter } from "@/services/productSellerService";
 
 const PAGE_SIZE = 6;
-type ProductFilter = "ALL" | "ACTIVE" | "PENDING REVIEW" | "SOLD OUT";
-const FILTER_TO_API: Record<ProductFilter, SellerListingFilter> = { ALL: "ALL", ACTIVE: "ACTIVE", "PENDING REVIEW": "PENDING", "SOLD OUT": "SOLD_OUT" };
-const FILTER_TABS = [{ key: "ALL" as ProductFilter, label: "Tất cả" }, { key: "ACTIVE" as ProductFilter, label: "Đang bán" }, { key: "PENDING REVIEW" as ProductFilter, label: "Chờ duyệt" }, { key: "SOLD OUT" as ProductFilter, label: "Hết hàng" }];
+
+type ProductFilter =
+  | "ALL"
+  | "ACTIVE"
+  | "DEACTIVE"
+  | "REJECTED"
+  | "PENDING REVIEW"
+  | "SOLD OUT";
+
+const FILTER_TO_API: Record<ProductFilter, SellerListingFilter> = {
+  ALL: "ALL",
+  ACTIVE: "ACTIVE",
+  DEACTIVE: "DEACTIVE",
+  REJECTED: "REJECTED",
+  "PENDING REVIEW": "PENDING",
+  "SOLD OUT": "SOLD_OUT",
+};
+
+const FILTER_TABS: { key: ProductFilter; label: string }[] = [
+  { key: "ALL", label: "Tất cả" },
+  { key: "ACTIVE", label: "Đang bán" },
+  { key: "DEACTIVE", label: "Không bán" },
+  { key: "REJECTED", label: "Bị từ chối" },
+  { key: "PENDING REVIEW", label: "Chờ duyệt" },
+  { key: "SOLD OUT", label: "Hết hàng" },
+];
 
 function UserProductSell() {
   const [filter, setFilter] = useState<ProductFilter>("ALL");
@@ -42,6 +65,11 @@ function UserProductSell() {
 
   const updateProductInList = (id: number, updater: (p: SellProduct) => SellProduct) => setProducts((prev) => prev.map((p) => p.id === id ? updater(p) : p));
 
+  const handleFilter = (next: ProductFilter) => {
+    setCurrentPage(0);
+    setFilter(next);
+  };
+
   const handleToggleActive = async (product: SellProduct) => {
     if (!product.canToggleActive || togglingId !== null) return;
     const nextActive = !product.active; const previous = product;
@@ -72,7 +100,7 @@ function UserProductSell() {
         <div className="mb-8"><h1 className="text-2xl font-bold text-brand-heading">Sản phẩm đang bán</h1><p className="mt-1 text-sm text-gray-500">Quản lý và lọc sản phẩm bạn đã đăng</p></div>
         <div className="mb-8 flex flex-wrap gap-3">
           {FILTER_TABS.map(({ key, label }) => (
-            <button key={key} type="button" onClick={() => { setCurrentPage(0); setFilter(key); }}
+            <button key={key} type="button" onClick={() => handleFilter(key)}
               className={`rounded-full px-4 py-2 text-sm font-medium transition ${filter === key ? "bg-brand-primary text-white shadow-sm" : "bg-green-100 text-brand-primary hover:bg-green-200/80"}`}>{label}</button>
           ))}
         </div>
@@ -80,7 +108,7 @@ function UserProductSell() {
         <div className={`transition-opacity duration-200 ${isRefreshing ? "opacity-60" : "opacity-100"}`}>
           {initialLoading ? (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: PAGE_SIZE }).map((_, i) => <div key={i} className="h-96 animate-pulse rounded-xl bg-white/80 shadow-sm" />)}
+              {Array.from({ length: PAGE_SIZE }).map((_, i) => <div key={i} className="h-105 animate-pulse rounded-xl bg-white/80 shadow-sm" />)}
             </div>
           ) : (
             <UserProductSellList products={products} togglingId={togglingId} restockingId={restockingId} onToggleActive={handleToggleActive} onEdit={setEditingProduct} onRestock={handleRestock} />

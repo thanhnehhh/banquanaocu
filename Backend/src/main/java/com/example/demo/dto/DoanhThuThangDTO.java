@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDTO {
-    private Integer maTheLoai;
-    private String tenTheLoai;
-    private Long soSanPham;
-    private Boolean active;
+public class DoanhThuThangDTO {
+    private int thang;
+    private double doanhThu;
 }

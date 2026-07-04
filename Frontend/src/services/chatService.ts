@@ -18,8 +18,16 @@ export const getConversationDetail = (conversationId: number, page = 0, size = 2
   axiosClient.get(`/conversations/${conversationId}`, { params: { page, size } });
 
 /**
- * Shortcut: mở chat 1-1 với một user
- * Truyền vào maNguoiDung của người kia
+ * Shortcut: mở chat 1-1 với một user (dùng maNguoiDung)
  */
 export const chatWithUser = (targetUserId: number) =>
   createConversation({ memberIds: [targetUserId], isGroup: false });
+
+/**
+ * Shortcut: mở chat với seller/buyer qua email (tương thích web_tmdt)
+ */
+export const chatWithSeller = (emailOpponent: string) =>
+  axiosClient.post("/conversations", { emailOpponent });
+
+export const chatWithBuyer = (emailOpponent: string) =>
+  axiosClient.post("/conversations", { emailOpponent });
