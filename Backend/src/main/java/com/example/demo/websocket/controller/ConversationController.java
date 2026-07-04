@@ -1,5 +1,6 @@
 package com.example.demo.websocket.controller;
 
+import com.example.demo.dao.UserRepository;
 import com.example.demo.dto.ApiResponse;
 import com.example.demo.websocket.dto.ConversationResponseDTO;
 import com.example.demo.websocket.dto.ConversationResponseDetail;
@@ -21,19 +22,46 @@ import java.util.List;
 public class ConversationController {
 
     private final ConversationService conversationService;
+    private final UserRepository userRepository;
 
     /**
      * POST /api/conversations
-     * Tạo cuộc trò chuyện mới
+     * Tạo cuộc trò chuyện mới (1-1 hoặc group)
+     * Body: { memberIds: [...] } hoặc { emailOpponent: "..." }
      */
     @PostMapping
     public ResponseEntity<ApiResponse<ConversationResponseDTO>> createConversation(
-            @RequestBody CreateConversationRequest request,
+            @RequestBody java.util.Map<String, Object> body,
             @AuthenticationPrincipal UserDetails userDetails) {
+
+        com.example.demo.websocket.dto.CreateConversationRequest request =
+                new com.example.demo.websocket.dto.CreateConversationRequest();
+
+        // Hỗ trợ cả 2 cách gọi:
+        // 1. { memberIds: [123] }  — banquanaocu mới
+        // 2. { emailOpponent: "abc@email.com" } — web_tmdt cũ
+        if (body.containsKey("emailOpponent")) {
+            String emailOpponent = (String) body.get("emailOpponent");
+            com.example.demo.entity.User opponent = userRepository.findByEmail(emailOpponent)
+                    .orElseThrow(() -> new com.example.demo.exception.BusinessException(
+                            "Không tìm thấy người dùng: " + emailOpponent));
+            request.setMemberIds(java.util.List.of(opponent.getMaNguoiDung()));
+            request.setIsGroup(false);
+        } else {
+            @SuppressWarnings("unchecked")
+            java.util.List<Integer> ids = (java.util.List<Integer>) body.get("memberIds");
+            if (ids != null) {
+                request.setMemberIds(ids.stream()
+                        .map(Integer::longValue)
+                        .collect(java.util.stream.Collectors.toList()));
+            }
+            request.setName((String) body.getOrDefault("name", null));
+            Object isGroup = body.get("isGroup");
+            request.setIsGroup(isGroup instanceof Boolean ? (Boolean) isGroup : false);
+        }
 
         ConversationResponseDTO conversation = conversationService.createConversation(
                 request, userDetails.getUsername());
-
         return ApiResponse.ok("Tạo cuộc trò chuyện thành công!", conversation);
     }
 
