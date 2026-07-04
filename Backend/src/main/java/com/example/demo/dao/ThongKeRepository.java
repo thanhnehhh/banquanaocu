@@ -2,6 +2,7 @@ package com.example.demo.dao;
 
 import com.example.demo.dto.DoanhThuDanhMucDTO;
 import com.example.demo.dto.DoanhThuNgayDTO;
+import com.example.demo.dto.DoanhThuThangDTO;
 import com.example.demo.entity.ChiTietDonHang;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -44,4 +45,36 @@ public interface ThongKeRepository extends JpaRepository<ChiTietDonHang, Long> {
             @Param("thang") int thang,
             @Param("nam") int nam
     );
+
+    // ─── Admin thống kê tổng hệ thống ─────────────────────────────────────────
+
+    @Query("SELECT COALESCE(SUM(dh.tongTien), 0.0) FROM DonHang dh WHERE dh.trangThaiDonHang.id = 5")
+    double countTongDoanhThu();
+
+    @Query("SELECT COUNT(dh) FROM DonHang dh")
+    long countTongDonHang();
+
+    @Query("SELECT COUNT(u) FROM User u")
+    long countTongKhachHang();
+
+    @Query("SELECT COUNT(DISTINCT p.user) FROM Product p")
+    long countTongCuaHang();
+
+    @Query("SELECT new com.example.demo.dto.DoanhThuThangDTO(MONTH(dh.ngayTao), SUM(dh.tongTien)) " +
+           "FROM DonHang dh " +
+           "WHERE dh.trangThaiDonHang.id = 5 " +
+           "AND YEAR(dh.ngayTao) = :nam " +
+           "GROUP BY MONTH(dh.ngayTao) " +
+           "ORDER BY MONTH(dh.ngayTao) ASC")
+    List<DoanhThuThangDTO> thongKeDoanhThuNamTheoThang(@Param("nam") int nam);
+
+    @Query("SELECT new com.example.demo.dto.DoanhThuDanhMucDTO(c.tenTheLoai, SUM(ct.soLuong * ct.giaBan)) " +
+           "FROM ChiTietDonHang ct " +
+           "JOIN ct.product p " +
+           "JOIN p.category c " +
+           "JOIN ct.donHang dh " +
+           "WHERE dh.trangThaiDonHang.id = 5 " +
+           "AND YEAR(dh.ngayTao) = :nam " +
+           "GROUP BY c.tenTheLoai")
+    List<DoanhThuDanhMucDTO> thongKeDoanhThuNamTheoDanhMuc(@Param("nam") int nam);
 }
