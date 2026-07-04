@@ -11,4 +11,7 @@ public interface ReviewService {
 
     /** Kiểm tra user đã đánh giá sản phẩm này chưa */
     boolean daDanhGia(String email, long maSanPham);
+
+    /** Kiểm tra user có thể đánh giá không (đã mua + đơn thành công) */
+    boolean coTheDanhGia(String email, long maSanPham);
 }
