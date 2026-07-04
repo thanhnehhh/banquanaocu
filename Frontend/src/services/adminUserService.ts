@@ -10,6 +10,7 @@ export interface User {
   gioiTinh: string;
   ngaySinh: string;
   trangThai: number;
+  roles?: string[];
 }
 
 export interface UserResponse {
@@ -37,3 +38,9 @@ export const getHiddenUsers = (page: number = 0, size: number = 10) =>
 
 export const searchHiddenUsers = (searchTerm: string, page: number = 0, size: number = 10) =>
   axiosClient.get<unknown, { data: UserResponse }>("/admin/users/hidden/search", { params: { q: searchTerm, page, size } });
+
+export const createUser = (userData: Omit<User, "maNguoiDung" | "avatar">) =>
+  axiosClient.post<unknown, { data: User }>("/admin/users", userData);
+
+export const updateUser = (maNguoiDung: number, userData: Omit<User, "maNguoiDung" | "avatar">) =>
+  axiosClient.put<unknown, { data: User }>(`/admin/users/${maNguoiDung}`, userData);
