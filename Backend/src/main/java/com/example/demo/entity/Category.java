@@ -17,6 +17,9 @@ public class Category {
     @Column(name = "ten_the_loai")
     private String tenTheLoai;
 
+    @Column(name = "active", columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean active = true;
+
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = {
             CascadeType.REFRESH,
             CascadeType.MERGE,

@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryDTO {
-    private int maTheLoai;
+    private Integer maTheLoai;
     private String tenTheLoai;
-    private long soSanPham;
+    private Long soSanPham;
+    private Boolean active;
 }
