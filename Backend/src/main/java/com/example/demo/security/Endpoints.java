@@ -76,5 +76,6 @@ public class Endpoints {
             "/api/products/admin",
             "/api/products/*",
             "/api/admin/orders",             // Admin xem tất cả đơn hàng
+            "/api/admin/thong-ke",           // Admin thống kê hệ thống
     };
 }

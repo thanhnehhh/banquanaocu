@@ -10,6 +10,8 @@ import NotFoundPage from "@/pages/NotFoundPage";
 import KichHoatTaiKhoan from "@/pages/KichHoatTaiKhoan";
 import ForgotPassword from "@/pages/ForgotPassword/ForgotPassword";
 import VNPayReturn from "@/pages/VNPayReturn";
+import NotPermission from "@/pages/NotPermission";
+import StorePage from "@/pages/StorePage";
 
 const publicRoutes = [
   {
@@ -41,7 +43,22 @@ const publicRoutes = [
     path: "/product/:id",
     element: <ProductDetail />,
   },
-
+  {
+    path: "/not-permission",
+    element: <NotPermission />,
+  },
+  {
+    path: "/store/:sellerId",
+    element: <StorePage />,
+  },
+  {
+    path: "/store/:sellerId",
+    element: <StorePage />,
+  },
+  {
+    path: "/store/:sellerId",
+    element: <StorePage />,
+  },
   {
     path: "*",
     element: <NotFoundPage />,
