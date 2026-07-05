@@ -21,10 +21,7 @@ public class ViController {
     private final UserRepository userRepository;
     private final GiaoDichRepository giaoDichRepository;
 
-    /**
-     * GET /api/vi/{maNguoiDung}
-     * Lấy số dư và lịch sử giao dịch của ví
-     */
+    // GET /api/vi/{maNguoiDung} — Lấy số dư và lịch sử giao dịch của ví
     @GetMapping("/{maNguoiDung}")
     public ResponseEntity<?> layThongTinVi(@PathVariable Long maNguoiDung) {
         Optional<User> userOpt = userRepository.findById(maNguoiDung);
@@ -40,10 +37,7 @@ public class ViController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * POST /api/vi/{maNguoiDung}/rut-tien
-     * Thực hiện rút tiền từ ví
-     */
+    // POST /api/vi/{maNguoiDung}/rut-tien — Thực hiện rút tiền từ ví
     @PostMapping("/{maNguoiDung}/rut-tien")
     public ResponseEntity<?> rutTien(@PathVariable Long maNguoiDung, @RequestParam Double soTien) {
         Optional<User> userOpt = userRepository.findById(maNguoiDung);

@@ -10,10 +10,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateConversationRequest {
-    /** Danh sách maNguoiDung của các thành viên (không bao gồm người tạo) */
+    // Danh sách maNguoiDung của các thành viên (không bao gồm người tạo)
     private List<Long> memberIds;
-    /** Tên cuộc trò chuyện (cho group chat) */
+    // Tên cuộc trò chuyện (cho group chat)
     private String name;
-    /** true = group chat, false = chat 1-1 */
+    // true = group chat, false = chat 1-1
     private Boolean isGroup = false;
 }

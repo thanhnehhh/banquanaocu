@@ -27,11 +27,8 @@ public class VNPayController {
     private final DonHangRepository donHangRepository;
     private final TrangThaiDonHangRepository trangThaiDonHangRepository;
 
-    /**
-     * POST /api/payment/vnpay/create-payment
-     * Tạo URL thanh toán VNPAY cho đơn hàng đã tạo.
-     * Body: { "maDonHang": 1 }
-     */
+    // POST /api/payment/vnpay/create-payment — Tạo URL thanh toán VNPAY cho đơn hàng đã tạo
+    // Body: { "maDonHang": 1 }
     @PostMapping("/create-payment")
     public ResponseEntity<ApiResponse<Map<String, String>>> taoThanhToan(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -69,11 +66,7 @@ public class VNPayController {
         return ApiResponse.ok("Tạo URL thanh toán thành công!", result);
     }
 
-    /**
-     * GET /api/payment/vnpay/ipn
-     * IPN — VNPAY gọi server-to-server để thông báo kết quả thanh toán.
-     * Không cần JWT (public endpoint).
-     */
+    // GET /api/payment/vnpay/ipn — VNPAY gọi server-to-server để thông báo kết quả thanh toán (public)
     @GetMapping("/ipn")
     @Transactional
     public ResponseEntity<Map<String, String>> ipnHandler(

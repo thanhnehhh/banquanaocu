@@ -17,40 +17,28 @@ public class TinhTrangController {
 
     private final TinhTrangService tinhTrangService;
 
-    /**
-     * GET /api/statuses
-     * Lấy danh sách tất cả tình trạng sản phẩm
-     */
+    // GET /api/statuses — Lấy danh sách tất cả tình trạng sản phẩm
     @GetMapping
     public ResponseEntity<ApiResponse<List<TinhTrangDTO>>> getAllStatuses() {
         List<TinhTrangDTO> statuses = tinhTrangService.getAllStatuses();
         return ApiResponse.ok("Lấy danh sách tình trạng thành công!", statuses);
     }
 
-    /**
-     * GET /api/statuses/{id}
-     * Lấy thông tin tình trạng theo ID
-     */
+    // GET /api/statuses/{id} — Lấy thông tin tình trạng theo ID
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<TinhTrangDTO>> getStatusById(@PathVariable int id) {
         TinhTrangDTO status = tinhTrangService.getStatusById(id);
         return ApiResponse.ok("Lấy tình trạng thành công!", status);
     }
 
-    /**
-     * POST /api/statuses
-     * Tạo tình trạng mới
-     */
+    // POST /api/statuses — Tạo tình trạng mới
     @PostMapping
     public ResponseEntity<ApiResponse<TinhTrangDTO>> createStatus(@RequestBody TinhTrangDTO tinhTrangDTO) {
         TinhTrangDTO createdStatus = tinhTrangService.createStatus(tinhTrangDTO);
         return ApiResponse.created("Tạo tình trạng thành công!", createdStatus);
     }
 
-    /**
-     * PUT /api/statuses/{id}
-     * Cập nhật tình trạng
-     */
+    // PUT /api/statuses/{id} — Cập nhật tình trạng
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<TinhTrangDTO>> updateStatus(@PathVariable int id,
                                                                    @RequestBody TinhTrangDTO tinhTrangDTO) {
@@ -58,10 +46,7 @@ public class TinhTrangController {
         return ApiResponse.ok("Cập nhật tình trạng thành công!", updatedStatus);
     }
 
-    /**
-     * DELETE /api/statuses/{id}
-     * Xóa tình trạng
-     */
+    // DELETE /api/statuses/{id} — Xóa tình trạng
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteStatus(@PathVariable int id) {
         tinhTrangService.deleteStatus(id);

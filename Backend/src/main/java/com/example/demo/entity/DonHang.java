@@ -37,7 +37,7 @@ public class DonHang {
     @Column(name = "phuong_thuc_thanh_toan", length = 50)
     private String phuongThucThanhToan; // "COD" | "VNPAY"
 
-    /** Mã đơn hàng cha — group các đơn con của cùng 1 lần checkout */
+    // Mã đơn hàng cha — group các đơn con của cùng 1 lần checkout
     @Column(name = "ma_don_hang_cha", nullable = true)
     private Integer maDonHangCha;
 

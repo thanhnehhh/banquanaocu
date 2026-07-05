@@ -15,45 +15,41 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    /** Lấy tất cả sản phẩm theo danh mục (chỉ active=1, trang_thai=2) */
+    // Lấy tất cả sản phẩm theo danh mục (chỉ active=1, trang_thai=2)
     @Query("SELECT p FROM Product p WHERE p.category.maTheLoai = :maTheLoai AND p.active = true AND p.trangThaiSanPham.id = 2")
     List<Product> findByCategoryMaTheLoai(@Param("maTheLoai") int maTheLoai);
 
-    /** Lấy sản phẩm theo người bán (chỉ active=1, trang_thai=2) */
+    // Lấy sản phẩm theo người bán (chỉ active=1, trang_thai=2)
     @Query("SELECT p FROM Product p WHERE p.user.maNguoiDung = :maNguoiDung AND p.active = true AND p.trangThaiSanPham.id = 2")
     List<Product> findByUserMaNguoiDung(@Param("maNguoiDung") long maNguoiDung);
 
-    /**
-     * Lấy sản phẩm bán chạy nhất, loại trừ sản phẩm của người bán đang đăng nhập (nếu có)
-     */
+    // Lấy sản phẩm bán chạy nhất, loại trừ sản phẩm của người bán đang đăng nhập (nếu có)
     @Query("SELECT p FROM Product p " +
            "WHERE p.active = true AND p.trangThaiSanPham.id = 2 " +
            "AND (:excludeEmail IS NULL OR p.user.email != :excludeEmail) " +
            "ORDER BY p.soLuongDaBan DESC")
     Page<Product> findBestSellingProducts(@Param("excludeEmail") String excludeEmail, Pageable pageable);
 
-    /**
-     * Lấy sản phẩm mới nhất, loại trừ sản phẩm của người bán đang đăng nhập (nếu có)
-     */
+    // Lấy sản phẩm mới nhất, loại trừ sản phẩm của người bán đang đăng nhập (nếu có)
     @Query("SELECT p FROM Product p " +
            "WHERE p.active = true AND p.trangThaiSanPham.id = 2 " +
            "AND (:excludeEmail IS NULL OR p.user.email != :excludeEmail) " +
            "ORDER BY p.maSanPham DESC")
     List<Product> findNewestProducts(@Param("excludeEmail") String excludeEmail, Pageable pageable);
 
-    /** Tìm kiếm sản phẩm theo tên (chỉ active=1, trang_thai=2) */
+    // Tìm kiếm sản phẩm theo tên (chỉ active=1, trang_thai=2)
     @Query("SELECT p FROM Product p WHERE LOWER(p.tenSanPham) LIKE LOWER(CONCAT('%', :tenSanPham, '%')) AND p.active = true AND p.trangThaiSanPham.id = 2")
     Page<Product> findByTenSanPhamContainingIgnoreCase(@Param("tenSanPham") String tenSanPham, Pageable pageable);
 
-    /** Tìm kiếm sản phẩm theo danh mục (chỉ active=1, trang_thai=2) */
+    // Tìm kiếm sản phẩm theo danh mục (chỉ active=1, trang_thai=2)
     @Query("SELECT p FROM Product p WHERE p.category.maTheLoai = :maTheLoai AND p.active = true AND p.trangThaiSanPham.id = 2")
     Page<Product> findByCategoryMaTheLoai(@Param("maTheLoai") int maTheLoai, Pageable pageable);
 
-    /** Tìm kiếm sản phẩm theo tình trạng (chỉ active=1, trang_thai=2) */
+    // Tìm kiếm sản phẩm theo tình trạng (chỉ active=1, trang_thai=2)
     @Query("SELECT p FROM Product p WHERE p.tinhTrang.maTinhTrang = :maTinhTrang AND p.active = true AND p.trangThaiSanPham.id = 2")
     Page<Product> findByTinhTrangMaTinhTrang(@Param("maTinhTrang") int maTinhTrang, Pageable pageable);
 
-    /** Tìm kiếm sản phẩm với bộ lọc kết hợp (chỉ active=1, trang_thai=2) */
+    // Tìm kiếm sản phẩm với bộ lọc kết hợp (chỉ active=1, trang_thai=2)
     @Query(value = "SELECT p FROM Product p WHERE " +
            "(:tenSanPham IS NULL OR LOWER(p.tenSanPham) LIKE LOWER(CONCAT('%', :tenSanPham, '%'))) " +
            "AND (:maTheLoai IS NULL OR p.category.maTheLoai = :maTheLoai) " +

@@ -9,7 +9,7 @@ public class UpdateProfileRequest {
     private String hoDem;
     private String ten;
     private LocalDate birthDay;
-    /** 'M' = Nam, 'F' = Nữ, 'O' = Khác */
+    // 'M' = Nam, 'F' = Nữ, 'O' = Khác
     private Character gioiTinh;
     private String diaChi;
     private String soDienThoai;

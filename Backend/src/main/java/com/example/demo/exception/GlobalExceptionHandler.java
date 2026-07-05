@@ -10,23 +10,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
 
-/**
- * Bắt tất cả exception từ mọi controller trong ứng dụng.
- * Không cần try-catch trong controller nữa.
- */
+// Bắt tất cả exception từ mọi controller — không cần try-catch trong controller nữa.
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Bắt lỗi validation từ @Valid / @Validated trên @RequestBody.
-     *
-     * Ví dụ JSON trả về khi nhập sai:
-     * {
-     *   "success": false,
-     *   "message": "Dữ liệu không hợp lệ",
-     *   "data": ["Email không được để trống", "Mật khẩu phải có ít nhất 6 ký tự"]
-     * }
-     */
+    // Bắt lỗi validation từ @Valid / @Validated trên @RequestBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<List<String>>> handleValidationException(
             MethodArgumentNotValidException ex) {
@@ -40,55 +28,23 @@ public class GlobalExceptionHandler {
         return ApiResponse.error(HttpStatus.BAD_REQUEST, "Dữ liệu không hợp lệ", errors);
     }
 
-    /**
-     * Bắt lỗi nghiệp vụ từ BusinessException (email trùng, mật khẩu không khớp, v.v.)
-     *
-     * Ví dụ JSON trả về:
-     * {
-     *   "success": false,
-     *   "message": "Email đã được sử dụng!"
-     * }
-     */
+    // Bắt lỗi nghiệp vụ từ BusinessException
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException ex) {
         return ApiResponse.error(ex.getStatus(), ex.getMessage());
     }
 
-    /**
-     * Bắt tất cả lỗi không mong muốn còn lại (fallback).
-     *
-     * Ví dụ JSON trả về:
-     * {
-     *   "success": false,
-     *   "message": "Lỗi hệ thống, vui lòng thử lại sau."
-     * }
-     */
+    // Bắt tất cả lỗi không mong muốn còn lại (fallback)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
-        ex.printStackTrace(); // In log để debug
+        ex.printStackTrace();
         return ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi hệ thống, vui lòng thử lại sau.");
     }
 
-    /**
-     * Bắt lỗi về bad creditial là thông tin lỗi đăng nhập bị sai
-     *
-     * Ví dụ JSON trả về:
-     * {
-     *   {
-     *   "success": false,
-     *   "message": "Email hoặc mật khẩu không đúng."
-     * }
-     * }
-     */
+    // Bắt lỗi đăng nhập sai thông tin
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponse<Void>> handleBadCredentialsException(
-            BadCredentialsException ex
-    ) {
-
-        return ApiResponse.error(
-                HttpStatus.UNAUTHORIZED,
-                "Email hoặc mật khẩu không đúng."
-        );
+            BadCredentialsException ex) {
+        return ApiResponse.error(HttpStatus.UNAUTHORIZED, "Email hoặc mật khẩu không đúng.");
     }
-
 }

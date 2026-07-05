@@ -9,7 +9,7 @@ import ShippingInfo from "./sections/ShippingInfo";
 import PaymentMethod from "./sections/PaymentMethod";
 import OrderSummary from "./sections/OrderSummary";
 
-/* ================= TYPES ================= */
+// ── TYPES ─────────────────────────────────────────────────────────────────────
 export type ShippingData = {
   hoTen: string;
   soDienThoai: string;
@@ -29,7 +29,7 @@ export type PaymentType = "cod" | "vnpay";
 
 const SHIPPING_FEE = 30000;
 
-/* ================= COMPONENT ================= */
+// ── COMPONENT ─────────────────────────────────────────────────────────────────
 const Checkout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();

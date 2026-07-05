@@ -66,7 +66,7 @@ public class DonHangController {
         return ApiResponse.ok("Lấy chi tiết đơn hàng thành công!", donHang);
     }
 
-    /** Endpoint cũ — giữ lại để không phá frontend đang dùng */
+    // Endpoint cũ — giữ lại để không phá frontend đang dùng
     @PutMapping("/{maDonHang}/complete")
     public ResponseEntity<ApiResponse<DonHangDTO>> hoanThanhDonHang(
             @AuthenticationPrincipal UserDetails userDetails,

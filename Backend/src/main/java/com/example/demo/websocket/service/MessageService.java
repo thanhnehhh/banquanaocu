@@ -5,8 +5,6 @@ import com.example.demo.websocket.dto.ChatMessage;
 
 public interface MessageService {
 
-    /**
-     * Gửi tin nhắn vào cuộc trò chuyện
-     */
+    // Gửi tin nhắn vào cuộc trò chuyện
     Message sendMessage(ChatMessage chatMessage, String senderEmail);
 }
