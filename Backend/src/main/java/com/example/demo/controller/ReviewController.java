@@ -19,11 +19,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    /**
-     * POST /api/reviews
-     * Tạo đánh giá sản phẩm
-     * Body: { "maSanPham": 1, "diemXepHang": 5, "nhanXet": "..." }
-     */
+    // POST /api/reviews — Tạo đánh giá sản phẩm
     @PostMapping
     public ResponseEntity<ApiResponse<ReviewDTO>> taoReview(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -32,10 +28,7 @@ public class ReviewController {
         return ApiResponse.ok("Đánh giá thành công!", review);
     }
 
-    /**
-     * GET /api/reviews/check?maSanPham=1
-     * Kiểm tra user đã đánh giá sản phẩm này chưa
-     */
+    // GET /api/reviews/check?maSanPham=1 — Kiểm tra user đã đánh giá sản phẩm này chưa
     @GetMapping("/check")
     public ResponseEntity<ApiResponse<Map<String, Boolean>>> kiemTraDaDanhGia(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -44,10 +37,7 @@ public class ReviewController {
         return ApiResponse.ok("OK", Map.of("daDanhGia", daDanhGia));
     }
 
-    /**
-     * GET /api/reviews/can-review?maSanPham=1
-     * Kiểm tra user có thể đánh giá không (đã mua + đơn thành công)
-     */
+    // GET /api/reviews/can-review?maSanPham=1 — Kiểm tra user có thể đánh giá không (đã mua + đơn thành công)
     @GetMapping("/can-review")
     public ResponseEntity<ApiResponse<Map<String, Boolean>>> kiemTraCoTheDanhGia(
             @AuthenticationPrincipal UserDetails userDetails,

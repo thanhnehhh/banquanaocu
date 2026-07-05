@@ -2,10 +2,8 @@ import type UploadProduct from "@/model/UploadProduct";
 import axiosClient from "./axiosClient";
 import supabase from "@/lib/supabaseClient";
 
-/**
- * Upload ảnh lên Supabase nếu có config.
- * Fallback: convert sang base64 và lưu trực tiếp vào DB (field duLieuAnh).
- */
+// Upload ảnh lên Supabase nếu có config.
+// Fallback: convert sang base64 và lưu trực tiếp vào DB (field duLieuAnh).
 export async function uploadProductImage(file: File): Promise<string> {
   // Nếu Supabase chưa config → dùng base64 fallback
   if (!supabase) {
@@ -27,7 +25,7 @@ export async function uploadProductImage(file: File): Promise<string> {
   }
 }
 
-/** Convert File sang base64 string */
+// Convert File sang base64 string
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

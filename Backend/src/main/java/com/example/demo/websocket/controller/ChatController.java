@@ -20,12 +20,7 @@ public class ChatController {
     private final MessageService messageService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    /**
-     * Client gửi: /app/chat.send
-     * Server broadcast tới: /topic/conversation/{conversationId}
-     *
-     * STOMP header cần: Authorization: Bearer <token>
-     */
+    // Client gửi: /app/chat.send — Server broadcast tới: /topic/conversation/{conversationId}
     @MessageMapping("/chat.send")
     public void sendMessage(@Payload ChatMessage chatMessage, Principal principal) {
         if (principal == null) {

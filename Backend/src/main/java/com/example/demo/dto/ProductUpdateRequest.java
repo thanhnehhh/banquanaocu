@@ -30,10 +30,10 @@ public class ProductUpdateRequest {
 
     private Integer tinhTrangId;
 
-    /** Thêm mới (maHinhAnh null/0) hoặc cập nhật ảnh có sẵn */
+    // Thêm mới (maHinhAnh null/0) hoặc cập nhật ảnh có sẵn
     @Valid
     private List<ProductImageUpdateRequest> images;
 
-    /** Danh sách mã ảnh cần xóa */
+    // Danh sách mã ảnh cần xóa
     private List<Integer> deleteImageIds;
 }

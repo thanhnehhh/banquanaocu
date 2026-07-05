@@ -24,11 +24,7 @@ public class ConversationController {
     private final ConversationService conversationService;
     private final UserRepository userRepository;
 
-    /**
-     * POST /api/conversations
-     * Tạo cuộc trò chuyện mới (1-1 hoặc group)
-     * Body: { memberIds: [...] } hoặc { emailOpponent: "..." }
-     */
+    // POST /api/conversations — Tạo cuộc trò chuyện mới (1-1 hoặc group)
     @PostMapping
     public ResponseEntity<ApiResponse<ConversationResponseDTO>> createConversation(
             @RequestBody java.util.Map<String, Object> body,
@@ -65,10 +61,7 @@ public class ConversationController {
         return ApiResponse.ok("Tạo cuộc trò chuyện thành công!", conversation);
     }
 
-    /**
-     * GET /api/conversations
-     * Lấy danh sách cuộc trò chuyện của user hiện tại
-     */
+    // GET /api/conversations — Lấy danh sách cuộc trò chuyện của user hiện tại
     @GetMapping
     public ResponseEntity<ApiResponse<List<ConversationResponseDTO>>> getUserConversations(
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -79,10 +72,7 @@ public class ConversationController {
         return ApiResponse.ok("Lấy danh sách cuộc trò chuyện thành công!", conversations);
     }
 
-    /**
-     * GET /api/conversations/{conversationId}?page=0&size=20
-     * Lấy chi tiết cuộc trò chuyện (bao gồm tin nhắn với phân trang)
-     */
+    // GET /api/conversations/{conversationId}?page=0&size=20 — Lấy chi tiết cuộc trò chuyện (tin nhắn phân trang)
     @GetMapping("/{conversationId}")
     public ResponseEntity<ApiResponse<ConversationResponseDetail>> getConversationDetail(
             @PathVariable Long conversationId,
