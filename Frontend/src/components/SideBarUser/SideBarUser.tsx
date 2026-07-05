@@ -1,10 +1,11 @@
-import { User, MessageCircle, Landmark, Bell, TicketCheck, CirclePlus, List, Van, Heart, ShoppingCart } from "lucide-react";
+import { User, MessageCircle, Landmark, Bell, TicketCheck, CirclePlus, List, Van, ShoppingCart } from "lucide-react";
 import HorizontalDivider from "../common/HorizontalDivider";
 import MenuItem from "./MenuItem/MenuItem";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import authSlice from "@/redux/authSlice/authSlice";
+import { resetCart } from "@/redux/cartSlice/cartSlice";
 import Loading from "../common/Loading";
 import { disconnectSocket } from "@/websocket/chatSocket";
 
@@ -25,6 +26,7 @@ function SideBarUser() {
           disconnectSocket();
           localStorage.removeItem("token");
           dispatch(authSlice.actions.logout());
+          dispatch(resetCart());
           navigate("/");
         }
       })
@@ -47,7 +49,6 @@ function SideBarUser() {
       <MenuItem to="/profile/sell-orders" icon={<Van size={20} />} text="Đơn bán" />
       <HorizontalDivider />
       <span className="p-2">Mua hàng</span>
-      <MenuItem to="/favorites" icon={<Heart size={20} />} text="Yêu thích" />
       <MenuItem to="/profile/buy-orders" icon={<ShoppingCart size={20} />} text="Đơn mua" />
       <div className="mt-4 flex items-center justify-center">
         <button onClick={handleLogout}
