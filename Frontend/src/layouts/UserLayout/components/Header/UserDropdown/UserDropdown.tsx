@@ -24,7 +24,7 @@ const UserDropdown = ({ user }: UserDropdownProps) => {
       credentials: "include",
     })
       .then((res) => {
-        if (res.ok) { disconnectSocket(); localStorage.removeItem("token"); dispatch(authSlice.actions.logout()); navigate("/"); }
+        if (res.ok) { disconnectSocket(); localStorage.removeItem("token"); dispatch(authSlice.actions.logout()); dispatch(resetCart()); navigate("/"); }
       })
       .catch((err) => console.error("Logout failed:", err))
       .finally(() => setIsLoading(false));
@@ -68,9 +68,6 @@ const UserDropdown = ({ user }: UserDropdownProps) => {
               <Van size={16} className="text-gray-500" />Đơn bán
             </Link>
             <div className="h-px bg-gray-100 my-1 mx-2"></div>
-            <Link to="/favorites" className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors">
-              <Heart size={16} className="text-gray-500" />Yêu thích
-            </Link>
             <Link to="/profile/buy-orders" className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors">
               <ShoppingCart size={16} className="text-gray-500" />Đơn mua
             </Link>

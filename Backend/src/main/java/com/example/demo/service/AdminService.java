@@ -16,4 +16,10 @@ public interface AdminService {
     PageResponse<AdminUserDTO> getAllHiddenUsers(int page, int size);
 
     PageResponse<AdminUserDTO> searchHiddenUsers(String keyword, int page, int size);
+
+    // Tạo người dùng mới
+    AdminUserDTO createUser(AdminUserDTO userDTO);
+
+    // Cập nhật thông tin người dùng
+    AdminUserDTO updateUser(Long maNguoiDung, AdminUserDTO userDTO);
 }

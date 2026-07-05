@@ -57,6 +57,22 @@ public class AdminController {
         return ApiResponse.ok("Xóa người dùng thành công!", null);
     }
 
+    // POST /api/admin/users — Tạo người dùng mới
+    @PostMapping("/users")
+    public ResponseEntity<ApiResponse<AdminUserDTO>> createUser(@RequestBody AdminUserDTO userDTO) {
+        AdminUserDTO response = adminService.createUser(userDTO);
+        return ApiResponse.ok("Tạo người dùng thành công!", response);
+    }
+
+    // PUT /api/admin/users/{id} — Cập nhật thông tin người dùng
+    @PutMapping("/users/{id}")
+    public ResponseEntity<ApiResponse<AdminUserDTO>> updateUser(
+            @PathVariable Long id,
+            @RequestBody AdminUserDTO userDTO) {
+        AdminUserDTO response = adminService.updateUser(id, userDTO);
+        return ApiResponse.ok("Cập nhật thông tin người dùng thành công!", response);
+    }
+
     @GetMapping("/users/hidden")
     public ResponseEntity<ApiResponse<PageResponse<AdminUserDTO>>> getHiddenUsers(
             @RequestParam(defaultValue = "0") int page,
@@ -115,7 +131,7 @@ public class AdminController {
 
     // ─── Category management ──────────────────────────────────────────────────
 
-    /** GET /api/admin/categories?page=0&size=10 */
+    // GET /api/admin/categories?page=0&size=10
     @GetMapping("/categories")
     public ResponseEntity<ApiResponse<PageResponse<CategoryDTO>>> getCategories(
             @RequestParam(defaultValue = "0") int page,
@@ -123,7 +139,7 @@ public class AdminController {
         return ApiResponse.ok("Lấy danh sách danh mục thành công!", categoryService.getAllCategories(page, size));
     }
 
-    /** GET /api/admin/categories/search?q=keyword&page=0&size=10 */
+    // GET /api/admin/categories/search?q=keyword&page=0&size=10
     @GetMapping("/categories/search")
     public ResponseEntity<ApiResponse<PageResponse<CategoryDTO>>> searchCategories(
             @RequestParam("q") String keyword,
@@ -132,13 +148,13 @@ public class AdminController {
         return ApiResponse.ok("Tìm kiếm danh mục thành công!", categoryService.searchCategories(keyword, page, size));
     }
 
-    /** POST /api/admin/categories */
+    // POST /api/admin/categories
     @PostMapping("/categories")
     public ResponseEntity<ApiResponse<CategoryDTO>> createCategory(@RequestBody CategoryDTO categoryDTO) {
         return ApiResponse.ok("Tạo danh mục thành công!", categoryService.createCategory(categoryDTO));
     }
 
-    /** PUT /api/admin/categories/{id} */
+    // PUT /api/admin/categories/{id}
     @PutMapping("/categories/{id}")
     public ResponseEntity<ApiResponse<CategoryDTO>> updateCategory(
             @PathVariable int id,
@@ -146,7 +162,7 @@ public class AdminController {
         return ApiResponse.ok("Cập nhật danh mục thành công!", categoryService.updateCategory(id, categoryDTO));
     }
 
-    /** DELETE /api/admin/categories/{id} */
+    // DELETE /api/admin/categories/{id}
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable int id) {
         categoryService.deleteCategory(id);
@@ -155,7 +171,7 @@ public class AdminController {
 
     // ─── Admin thống kê ───────────────────────────────────────────────────────
 
-    /** GET /api/admin/thong-ke?nam=2026 */
+    // GET /api/admin/thong-ke?nam=2026
     @GetMapping("/thong-ke")
     public ResponseEntity<ApiResponse<AdminThongKeDTO>> getAdminThongKe(
             @RequestParam(value = "nam", required = false) Integer nam) {

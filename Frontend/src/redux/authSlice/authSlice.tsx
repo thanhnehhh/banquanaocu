@@ -17,6 +17,7 @@ const getInitialState = (): AuthState => {
             return {
                 isAuthenticated: true,
                 user: userInfo,
+                isHydrated: false, // sẽ set true sau khi fetch profile xong
             };
         } catch (error) {
             localStorage.removeItem("token");
@@ -25,6 +26,7 @@ const getInitialState = (): AuthState => {
     return {
         isAuthenticated: false,
         user: null,
+        isHydrated: true, // không cần fetch nếu không có token
     };
 };
 
@@ -43,12 +45,14 @@ const authSlice = createSlice({
         login: (state, action) => {
             state.isAuthenticated = true;
             state.user = action.payload;
+            state.isHydrated = true; // profile đã load xong
         },
         logout: (state) => {
             state.isAuthenticated = false;
             state.user = null;
+            state.isHydrated = true;
         },
-        /** Cập nhật từng field trong user state sau khi update profile thành công */
+        // Cập nhật từng field trong user state sau khi update profile thành công
         updateProfile: (state, action) => {
             if (state.user) {
                 state.user = { ...state.user, ...action.payload };

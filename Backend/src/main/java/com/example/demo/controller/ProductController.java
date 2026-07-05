@@ -7,9 +7,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -17,6 +21,26 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
 
         private final ProductService productService;
+
+        @PostMapping("/search-by-image")
+        public ResponseEntity<ApiResponse<List<ProductDTO>>> searchByImage(
+                @RequestParam("image") MultipartFile imageFile,
+                @RequestParam(value = "threshold", defaultValue = "0.4") Double threshold,
+                Authentication authentication) {
+            try {
+                Long currentUserId = null;
+                if (authentication != null && authentication.isAuthenticated()
+                        && !"anonymousUser".equals(authentication.getName())) {
+                    // Lấy userId từ principal nếu cần — bỏ qua nếu không có userRepository
+                    // currentUserId = ... (optional)
+                }
+                List<ProductDTO> products = productService.searchByImage(imageFile, threshold, currentUserId);
+                return ApiResponse.ok("Tìm kiếm theo hình ảnh thành công", products);
+            } catch (Exception e) {
+                return ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Lỗi khi tìm kiếm theo hình ảnh: " + e.getMessage());
+            }
+        }
 
         @GetMapping("/search")
         public ResponseEntity<ApiResponse<Page<ProductDTO>>> searchProducts(

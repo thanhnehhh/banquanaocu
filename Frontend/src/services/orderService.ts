@@ -19,11 +19,15 @@ export interface DonHangDTO {
   tongTien: number;
   trangThai: string;
   lyDoHuy?: string;
-  phuongThucThanhToan?: string;   // "COD" | "VNPAY"
-  maDonHangCha?: number;          // group đơn con cùng 1 lần checkout
-  tenKhachHang?: string;          // tên người mua
-  tenNguoiBan?: string;           // tên seller
-  emailNguoiBan?: string;         // email seller
+  phuongThucThanhToan?: string;
+  maDonHangCha?: number;
+  tenKhachHang?: string;
+  emailKhachHang?: string;
+  sdtKhachHang?: string;
+  tenNguoiBan?: string;
+  emailNguoiBan?: string;
+  tenShop?: string;
+  sdtShop?: string;
   chiTiet: ChiTietDonHangDTO[];
 }
 

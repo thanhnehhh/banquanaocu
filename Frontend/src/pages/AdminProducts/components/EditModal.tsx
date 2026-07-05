@@ -4,11 +4,16 @@ import axiosClient from "@/service/axiosClient";
 import ListCategory from "@/pages/AdminPostProduct/ListCategory/ListCategory";
 import ListCondition from "@/pages/AdminPostProduct/ListCondition/ListCondition";
 import ImageEditor from "./ImageEditor";
+import ListStatus from "./ListStatus";
 import { uploadProductImage } from "@/service/productPostService";
 import Loading from "@/components/common/Loading";
 
 function EditModal({ productId, setEditModal, setSuccess, setData, setReload }: any) {
-  const [form, setForm] = useState<any>({ tenSanPham: "", soLuong: 0, giaBan: 0, moTa: "", mauSac: "", thuongHieu: "", soLuongDaBan: 0, categoryId: 0, tinhTrangId: 0, kichThuoc: "", images: [], deleteImageIds: [] });
+  const [form, setForm] = useState<any>({
+    tenSanPham: "", soLuong: 0, giaBan: 0, moTa: "", mauSac: "",
+    thuongHieu: "", soLuongDaBan: 0, categoryId: 0, tinhTrangId: 0,
+    statusId: 0, kichThuoc: "", images: [], deleteImageIds: [],
+  });
   const [images, setImages] = useState<any>();
   const [deleteImage, setDeleteImage] = useState<any>();
   const [loading, setLoading] = useState(false);
@@ -16,7 +21,13 @@ function EditModal({ productId, setEditModal, setSuccess, setData, setReload }: 
   useEffect(() => {
     axiosClient.get(`/products/${productId}`).then((res) => {
       const data = (res as any).data;
-      setForm({ tenSanPham: data.tenSanPham, soLuong: data.soLuong, giaBan: data.giaSanPham, moTa: data.moTa, mauSac: data.mauSac, thuongHieu: data.thuongHieu, soLuongDaBan: data.soLuongDaBan, categoryId: data.maTheLoai, tinhTrangId: data.maTinhTrang, kichThuoc: data.kichCo, images: data.images });
+      setForm({
+        tenSanPham: data.tenSanPham, soLuong: data.soLuong, giaBan: data.giaSanPham,
+        moTa: data.moTa, mauSac: data.mauSac, thuongHieu: data.thuongHieu,
+        soLuongDaBan: data.soLuongDaBan, categoryId: data.maTheLoai,
+        tinhTrangId: data.maTinhTrang, statusId: data.maTrangThai ?? 0,
+        kichThuoc: data.kichCo, images: data.images,
+      });
     }).catch(console.log);
   }, []);
 
@@ -51,6 +62,7 @@ function EditModal({ productId, setEditModal, setSuccess, setData, setReload }: 
           <form onSubmit={submit} className="space-y-5 px-6 py-5">
             <ImageEditor initialImages={form.images} setImages={setImages} setDeleteImage={setDeleteImage} />
             <ListCategory categoryId={form.categoryId} handleChange={handleChange} />
+            <ListStatus statusId={form.statusId} handleChange={handleChange} />
             <div className="space-y-1"><label className="text-sm font-semibold">Tên sản phẩm</label><input type="text" value={form.tenSanPham} onChange={(e) => handleChange("tenSanPham", e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none" /></div>
             <ListCondition formData={form} handleChange={handleChange} />
             <div className="grid grid-cols-2 gap-4">

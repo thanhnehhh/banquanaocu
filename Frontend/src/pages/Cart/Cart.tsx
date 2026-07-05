@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Leaf, Trash2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -27,8 +27,20 @@ const Cart: React.FC = () => {
     }
   }, [isAuthenticated, dispatch]);
 
-  const handleRemove = (maItem: number) => {
-    dispatch(removeItemFromCart(maItem));
+  const [toast, setToast] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+
+  const showToast = (type: "success" | "error", msg: string) => {
+    setToast({ type, msg });
+    setTimeout(() => setToast(null), 2500);
+  };
+
+  const handleRemove = async (maItem: number) => {
+    try {
+      await dispatch(removeItemFromCart(maItem)).unwrap();
+      showToast("success", "Đã xóa sản phẩm khỏi giỏ hàng!");
+    } catch {
+      showToast("error", "Không thể xóa sản phẩm. Vui lòng thử lại!");
+    }
   };
 
   const handleUpdateQty = (maItem: number, soLuong: number) => {
@@ -69,6 +81,11 @@ const Cart: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#fafafa] font-sans text-[#1A1C19]">
+      {toast && (
+        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transition-all ${toast.type === "success" ? "bg-[#49613E]" : "bg-red-500"}`}>
+          {toast.type === "success" ? "✓" : "✕"} {toast.msg}
+        </div>
+      )}
       {/* Breadcrumb */}
       <div className="px-8 py-4 text-sm text-gray-500">
         <span
@@ -114,26 +131,24 @@ const Cart: React.FC = () => {
             ) : (
               items.map((item) => (
                 <div key={item.maItem} className="flex bg-[#f5f5f5] p-6 rounded-md">
-                  <div className="w-32 h-40 bg-white mr-6 flex-shrink-0 rounded overflow-hidden">
-                    {item.hinhAnh ? (
-                      <img
-                        src={item.hinhAnh}
-                        alt={item.tenSanPham}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
-                        No image
-                      </div>
-                    )}
+                  <div className="w-28 h-28 bg-white mr-6 flex-shrink-0 rounded-lg overflow-hidden">
+                    <a href={`/product/${item.maSanPham}`}>
+                      {item.hinhAnh ? (
+                        <img src={item.hinhAnh} alt={item.tenSanPham}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">No image</div>
+                      )}
+                    </a>
                   </div>
 
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start">
-                        <h3 className="text-[18px] font-medium text-[#1A1C19]">
+                        <a href={`/product/${item.maSanPham}`}
+                          className="text-[18px] font-medium text-[#1A1C19] hover:text-[#49613E] hover:underline transition-colors">
                           {item.tenSanPham}
-                        </h3>
+                        </a>
                         <span className="font-bold text-[18px]">
                           {(item.giaSanPham * item.soLuong).toLocaleString("vi-VN")}đ
                         </span>

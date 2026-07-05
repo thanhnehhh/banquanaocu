@@ -16,6 +16,7 @@ public class Endpoints {
             "/api/comments",        // Xem bình luận không cần đăng nhập
             "/api/order-statuses",  // Lấy danh sách trạng thái đơn hàng
             "/api/search/**",       // Tìm kiếm public
+            "/api/conditions",      // Trạng thái sản phẩm
     };
 
     public static final String[] PUBLIC_POST_ENDPOINTS = new String[] {

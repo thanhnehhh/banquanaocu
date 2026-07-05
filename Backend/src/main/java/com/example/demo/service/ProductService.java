@@ -8,28 +8,21 @@ import java.util.List;
 
 public interface ProductService {
 
-    /**
-     * Lấy danh sách sản phẩm mới nhất,
-     * loại trừ sản phẩm của người bán đang đăng nhập (null = không loại trừ)
-     */
+    // Lấy danh sách sản phẩm mới nhất,
+    // loại trừ sản phẩm của người bán đang đăng nhập (null = không loại trừ)
     List<ProductDTO> getNewestProducts(int limit, String excludeEmail);
 
-    /**
-     * Lấy danh sách sản phẩm bán chạy nhất,
-     * loại trừ sản phẩm của người bán đang đăng nhập (null = không loại trừ)
-     */
+    // Lấy danh sách sản phẩm bán chạy nhất,
+    // loại trừ sản phẩm của người bán đang đăng nhập (null = không loại trừ)
     Page<ProductDTO> getBestSellingProducts(Pageable pageable, String excludeEmail);
 
-    /** Lấy sản phẩm theo ID */
     ProductDTO getProductById(long id);
 
-    /** Lấy sản phẩm theo danh mục */
     List<ProductDTO> getProductsByCategory(int categoryId);
 
-    /** Lấy sản phẩm của người bán */
     List<ProductDTO> getProductsBySeller(long sellerId);
 
-    /** Tìm kiếm sản phẩm với bộ lọc kết hợp */
+    // Tìm kiếm sản phẩm với bộ lọc kết hợp
     Page<ProductDTO> searchProducts(String keyword, Integer categoryId, Integer statusId,
                                     Double minPrice, Double maxPrice, Pageable pageable);
 
@@ -41,7 +34,7 @@ public interface ProductService {
 
     Page<ProductPendingDTO> getPendingProducts(Pageable pageable);
 
-    /** Lấy sản phẩm của seller với filter (ALL / ACTIVE / PENDING / SOLD_OUT / DEACTIVE / REJECTED) */
+    // Lấy sản phẩm của seller với filter (ALL / ACTIVE / PENDING / SOLD_OUT / DEACTIVE / REJECTED)
     Page<ProductSellerDTO> getProductsByUser(String email, SellerListingFilter filter, Pageable pageable);
 
     void activeProduct(Long id, String email, boolean isAdmin);
@@ -50,9 +43,13 @@ public interface ProductService {
 
     void updateProduct(Long productId, ProductUpdateRequest request, String email, boolean isAdmin);
 
-    /** Lấy chi tiết 1 sản phẩm để quản lý (seller hoặc admin) */
+    // Lấy chi tiết 1 sản phẩm để quản lý (seller hoặc admin)
     ProductSellerDTO getProductForManagement(long productId, boolean isAdmin);
 
-    /** Lấy tất cả sản phẩm cho admin với filter */
+    // Lấy tất cả sản phẩm cho admin với filter
     Page<ProductAdminDTO> getProductsForAdmin(Pageable pageable, SellerListingFilter filter);
+
+    // Tìm kiếm sản phẩm theo hình ảnh với mức tương đồng tối thiểu
+    List<ProductDTO> searchByImage(org.springframework.web.multipart.MultipartFile imageFile,
+                                   Double threshold, Long currentUserId);
 }

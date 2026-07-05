@@ -8,13 +8,16 @@ import com.example.demo.mapper.ProductMapper;
 import com.example.demo.mapper.ProductSellerMapper;
 import com.example.demo.mapper.ProductAdminMapper;
 import com.example.demo.service.EmailService;
+import com.example.demo.service.ImageSimilarityService;
 import com.example.demo.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -32,6 +36,7 @@ public class ProductServiceImpl implements ProductService {
     private final TinhTrangRepository tinhTrangRepository;
     private final TrangThaiSanPhamRepository trangThaiSanPhamRepository;
     private final EmailService emailService;
+    private final ImageSimilarityService imageSimilarityService;
     private final ProductMapper productMapper;
     private final ProductSellerMapper productSellerMapper;
     private final ProductAdminMapper productAdminMapper;
@@ -483,6 +488,50 @@ public class ProductServiceImpl implements ProductService {
                     HttpStatus.FORBIDDEN,
                     "Bạn không có quyền thực hiện thao tác này với sản phẩm"
             );
+        }
+    }
+
+    @Override
+    public List<ProductDTO> searchByImage(MultipartFile imageFile, Double threshold, Long currentUserId) {
+        try {
+            log.info("Starting image search with threshold: {}, currentUserId: {}", threshold, currentUserId);
+
+            List<Product> allProducts = productRepository.findAll();
+            log.info("Total products in DB: {}", allProducts.size());
+
+            List<Product> filteredProducts = allProducts.stream()
+                    .filter(p -> currentUserId == null || p.getUser().getMaNguoiDung() != currentUserId)
+                    .collect(Collectors.toList());
+
+            List<ProductDTO> results = filteredProducts.stream()
+                    .map(product -> {
+                        if (product.getHinhAnhs() != null && !product.getHinhAnhs().isEmpty()) {
+                            String productImagePath = product.getHinhAnhs().get(0).getDuongDan();
+                            try {
+                                double similarity = imageSimilarityService
+                                        .calculateSimilarityWithUploadedFile(imageFile, productImagePath);
+                                log.debug("Product ID: {}, Similarity: {}", product.getMaSanPham(), similarity);
+                                if (similarity >= threshold) {
+                                    return new Object[]{product, similarity};
+                                }
+                            } catch (Exception e) {
+                                log.error("Error processing product {}", product.getMaSanPham(), e);
+                            }
+                        }
+                        return null;
+                    })
+                    .filter(obj -> obj != null)
+                    .sorted((a, b) -> Double.compare(
+                            (Double) ((Object[]) b)[1],
+                            (Double) ((Object[]) a)[1]))
+                    .map(obj -> convertToDTO((Product) ((Object[]) obj)[0]))
+                    .collect(Collectors.toList());
+
+            log.info("Image search completed. Results: {}", results.size());
+            return results;
+        } catch (Exception e) {
+            log.error("Error in searchByImage", e);
+            return Collections.emptyList();
         }
     }
 

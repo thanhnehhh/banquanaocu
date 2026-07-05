@@ -30,6 +30,7 @@ export function useGetProfile() {
           address: profile.diaChi || "",
           hoDem: profile.hoDem || "",
           googleId: profile.googleId || "",
+          maNguoiDung: profile.maNguoiDung,
         };
         dispatch(authSlice.actions.login(userInfo));
       })
