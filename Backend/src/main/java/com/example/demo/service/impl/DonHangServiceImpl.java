@@ -35,22 +35,18 @@ public class DonHangServiceImpl implements DonHangService {
     private final TrangThaiDonHangRepository trangThaiDonHangRepository;
     private final GiaoDichRepository giaoDichRepository;
     private final ProductRepository productRepository;
-    private final GiaoDichRepository giaoDichRepository;
-    private final com.example.demo.dao.ProductRepository productRepository;
     private final EmailService emailService;
 
-    /**
-     * Tạo đơn hàng — chia theo từng seller.
-     *
-     * Luồng:
-     * 1. Lấy giỏ hàng của user
-     * 2. Group items theo seller (product.user)
-     * 3. Mỗi seller → tạo 1 DonHang riêng
-     * 4. Tất cả đơn con dùng chung maDonHangCha (= maDonHang của đơn đầu tiên)
-     * 5. Gửi email thông báo cho từng seller (async)
-     * 6. Xóa giỏ hàng
-     * 7. Trả về list tất cả đơn con
-     */
+    // Tạo đơn hàng — chia theo từng seller.
+    //
+    // Luồng:
+    // 1. Lấy giỏ hàng của user
+    // 2. Group items theo seller (product.user)
+    // 3. Mỗi seller → tạo 1 DonHang riêng
+    // 4. Tất cả đơn con dùng chung maDonHangCha (= maDonHang của đơn đầu tiên)
+    // 5. Gửi email thông báo cho từng seller (async)
+    // 6. Xóa giỏ hàng
+    // 7. Trả về list tất cả đơn con
     @Override
     @Transactional
     public List<DonHangDTO> taoDoHang(String email, String diaChiNhanHang,
@@ -222,10 +218,8 @@ public class DonHangServiceImpl implements DonHangService {
         return convertToDTO(donHang, donHang.getChiTietDonHangs());
     }
 
-    /**
-     * Giữ lại hoanThanhDonHang để không phá code cũ (endpoint /complete).
-     * Logic: cộng tiền vào ví seller khi buyer bấm hoàn thành.
-     */
+    // Giữ lại hoanThanhDonHang để không phá code cũ (endpoint /complete).
+    // Logic: cộng tiền vào ví seller khi buyer bấm hoàn thành.
     @Override
     @Transactional
     public DonHangDTO hoanThanhDonHang(String email, int maDonHang) {

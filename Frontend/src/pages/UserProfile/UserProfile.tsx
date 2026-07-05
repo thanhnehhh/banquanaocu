@@ -7,8 +7,7 @@ import {
   XCircle,
   Loader2,
 } from "lucide-react";
-// Google icon — dùng URL thay vì import local để tránh lỗi file không tồn tại
-const googleImage = "https://www.svgrepo.com/show/475656/google-color.svg";
+import googleImage from "../../assets/image/google.png";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import type { UpdateProfileRequest } from "@/service/userProfileService";
 import dinhDangThoiGian from "@/utils/DinhDangThoiGian";
