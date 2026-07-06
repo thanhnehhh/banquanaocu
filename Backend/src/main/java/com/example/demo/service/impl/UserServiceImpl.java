@@ -116,6 +116,12 @@ public class UserServiceImpl implements UserService {
             User user = existUser.get();
             boolean needUpdate = false;
 
+            // Tài khoản đăng nhập Google luôn được coi là đã kích hoạt
+            if (!user.isDaKichHoat()) {
+                user.setDaKichHoat(true);
+                needUpdate = true;
+            }
+
             if (avatar != null && !avatar.isEmpty()
                     && (user.getAvatar() == null || user.getAvatar().isEmpty())) {
                 user.setAvatar(avatar);

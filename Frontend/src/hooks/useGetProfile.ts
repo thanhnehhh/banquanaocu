@@ -12,26 +12,26 @@ export function useGetProfile() {
     const decodedToken = jwtDecode(token) as Token;
     axiosClient
       .get(`/user/profile`)
-      .then((response: any) => {
-        // axiosClient interceptor return response.data (ApiResponse)
-        // BE trả về: { success, message, data: UserProfileResponse }
-        const profile = response?.data ?? response;
+      .then((response) => {
+        const data = (response as any).data;
+
         const userInfo: User = {
-          email: profile.email,
+          maNguoiDung: data.maNguoiDung || data.id,
+          email: data.email,
           role: decodedToken.roles,
           token: decodedToken,
-          avatar: profile.avatar || "",
-          name: profile.ten || "",
-          gioiTinh: profile.gioiTinh ? String(profile.gioiTinh) : "",
-          phone: profile.soDienThoai || "",
-          hobby: profile.hobby || "",
-          createAt: profile.ngayDangKy || "",
-          birthday: profile.birthDay || "",
-          address: profile.diaChi || "",
-          hoDem: profile.hoDem || "",
-          googleId: profile.googleId || "",
-          maNguoiDung: profile.maNguoiDung,
+          avatar: data.avatar || "",
+          name: data.ten || "",
+          gioiTinh: data.gioiTinh ? String(data.gioiTinh) : "",
+          phone: data.soDienThoai || "",
+          hobby: data.hobby || "",
+          createAt: data.ngayDangKy || "",
+          birthday: data.birthDay || "",
+          address: data.diaChi || "",
+          hoDem: data.hoDem || "",
+          googleId: data.googleId || "",
         };
+
         dispatch(authSlice.actions.login(userInfo));
       })
       .catch((error) => {

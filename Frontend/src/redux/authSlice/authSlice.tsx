@@ -17,7 +17,7 @@ const getInitialState = (): AuthState => {
             return {
                 isAuthenticated: true,
                 user: userInfo,
-                isHydrated: false, // sẽ set true sau khi fetch profile xong
+                isHydrated: false, // false để App.tsx fetch profile đầy đủ từ server
             };
         } catch (error) {
             localStorage.removeItem("token");
@@ -26,7 +26,7 @@ const getInitialState = (): AuthState => {
     return {
         isAuthenticated: false,
         user: null,
-        isHydrated: true, // không cần fetch nếu không có token
+        isHydrated: true,
     };
 };
 

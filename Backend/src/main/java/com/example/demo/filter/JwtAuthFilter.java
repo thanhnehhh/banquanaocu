@@ -75,6 +75,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             mapper.writeValue(response.getOutputStream(), errorDetails);
+        } catch (com.example.demo.exception.BusinessException e) {
+            // Tài khoản chưa kích hoạt hoặc bị khóa — trả 401 thay vì để crash 500
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+
+            java.util.Map<String, Object> errorDetails = new java.util.HashMap<>();
+            errorDetails.put("success", false);
+            errorDetails.put("message", e.getMessage());
+
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            mapper.writeValue(response.getOutputStream(), errorDetails);
         }
     }
 }
