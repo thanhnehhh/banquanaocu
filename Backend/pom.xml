@@ -63,6 +63,13 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+        <!-- spring-dotenv — đọc file .env cho local dev -->
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>spring-dotenv</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
         <!-- WebSocket — cần cho Chat real-time -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

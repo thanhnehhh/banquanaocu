@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -33,16 +34,19 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final OAuth2AuthenticationSuccessHandler oAuth2SuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2FailureHandler;
+    private final ClientRegistrationRepository clientRegistrationRepository;
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter, UserService userService,
                           PasswordEncoder passwordEncoder,
                           OAuth2AuthenticationSuccessHandler oAuth2SuccessHandler,
-                          OAuth2AuthenticationFailureHandler oAuth2FailureHandler) {
+                          OAuth2AuthenticationFailureHandler oAuth2FailureHandler,
+                          ClientRegistrationRepository clientRegistrationRepository) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.oAuth2SuccessHandler = oAuth2SuccessHandler;
         this.oAuth2FailureHandler = oAuth2FailureHandler;
+        this.clientRegistrationRepository = clientRegistrationRepository;
     }
 
     @Bean
@@ -86,7 +90,15 @@ public class SecurityConfig {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         http.oauth2Login(oauth2 -> oauth2
-                .authorizationEndpoint(auth -> auth.baseUri("/api/oauth2/authorization"))
+                .authorizationEndpoint(auth -> auth
+                        .baseUri("/api/oauth2/authorization")
+                        .authorizationRequestResolver(
+                                new CustomAuthorizationRequestResolver(
+                                        clientRegistrationRepository,
+                                        "/api/oauth2/authorization"
+                                )
+                        )
+                )
                 .successHandler(oAuth2SuccessHandler)
                 .failureHandler(oAuth2FailureHandler));
 
