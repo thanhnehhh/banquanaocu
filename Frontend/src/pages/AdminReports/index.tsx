@@ -28,19 +28,24 @@ const AdminReports = () => {
         loadData(year);
     }, [year]);
 
-    const formatCurrency = (val: number) =>
-        new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+    const formatCurrency = (val: number) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+    };
 
-    // Đảm bảo hiển thị đủ 12 tháng
+    // Chuẩn bị dữ liệu cho biểu đồ Doanh thu theo tháng (đảm bảo hiển thị đủ 12 tháng)
     const monthlyRevenueData = MONTH_NAMES.map((name, index) => {
         const monthNum = index + 1;
         const monthData = data?.doanhThuTheoThang?.find(item => item.thang === monthNum);
-        return { name, value: monthData ? monthData.doanhThu : 0 };
+        return {
+            name,
+            value: monthData ? monthData.doanhThu : 0
+        };
     });
 
+    // Chuẩn bị dữ liệu cho biểu đồ Doanh thu theo danh mục
     const productRevenueData = (data?.doanhThuTheoDanhMuc || []).map(item => ({
         name: item.tenDanhMuc || 'Khác',
-        value: item.doanhThu || 0,
+        value: item.doanhThu || 0
     }));
 
     if (loading && !data) {
@@ -53,13 +58,16 @@ const AdminReports = () => {
 
     return (
         <div className="flex flex-col gap-8 w-full max-w-6xl mx-auto pt-4 pb-12 px-4">
-            {/* Header & bộ lọc năm */}
+
+            {/* 1. Header & Breadcrumb */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3 text-sm">
                     <span className="text-gray-500">Kênh ADMIN</span>
                     <span className="text-gray-400 font-bold">›</span>
                     <span className="font-bold text-[#1A1C19]">Thống kê báo cáo</span>
                 </div>
+                
+                {/* Bộ lọc năm */}
                 <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-gray-600">Năm báo cáo:</span>
                     <select
@@ -76,47 +84,78 @@ const AdminReports = () => {
             </div>
 
             {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">{error}</div>
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                    {error}
+                </div>
             )}
 
-            {/* Summary Cards */}
+            {/* 2. Các thẻ chỉ số tổng quát (Summary Cards) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                    { label: "Tổng Doanh thu", val: formatCurrency(data?.tongDoanhThu || 0) },
-                    { label: "Tổng Đơn hàng",  val: (data?.tongDonHang || 0).toLocaleString() },
-                    { label: "Khách hàng",      val: (data?.tongKhachHang || 0).toLocaleString() },
-                    { label: "Cửa hàng",        val: (data?.tongCuaHang || 0).toLocaleString() },
-                ].map(({ label, val }) => (
-                    <div key={label} className="bg-[#EBF5E4] rounded-2xl p-6 flex flex-col gap-2 shadow-sm border border-[#D1E7C4]">
-                        <span className="text-gray-700 font-semibold text-base">{label}</span>
-                        <span className="text-2xl lg:text-3xl font-extrabold text-[#49613E] truncate">{val}</span>
-                    </div>
-                ))}
+                <div className="bg-[#EBF5E4] rounded-2xl p-6 flex flex-col gap-2 shadow-sm border border-[#D1E7C4]">
+                    <span className="text-gray-700 font-semibold text-base">Tổng Doanh thu</span>
+                    <span className="text-2xl lg:text-3xl font-extrabold text-[#49613E] truncate">
+                        {formatCurrency(data?.tongDoanhThu || 0)}
+                    </span>
+                </div>
+                <div className="bg-[#EBF5E4] rounded-2xl p-6 flex flex-col gap-2 shadow-sm border border-[#D1E7C4]">
+                    <span className="text-gray-700 font-semibold text-base">Tổng Đơn hàng</span>
+                    <span className="text-3xl lg:text-4xl font-extrabold text-[#49613E]">
+                        {(data?.tongDonHang || 0).toLocaleString()}
+                    </span>
+                </div>
+                <div className="bg-[#EBF5E4] rounded-2xl p-6 flex flex-col gap-2 shadow-sm border border-[#D1E7C4]">
+                    <span className="text-gray-700 font-semibold text-base">Khách hàng</span>
+                    <span className="text-3xl lg:text-4xl font-extrabold text-[#49613E]">
+                        {(data?.tongKhachHang || 0).toLocaleString()}
+                    </span>
+                </div>
+                <div className="bg-[#EBF5E4] rounded-2xl p-6 flex flex-col gap-2 shadow-sm border border-[#D1E7C4]">
+                    <span className="text-gray-700 font-semibold text-base">Cửa hàng</span>
+                    <span className="text-3xl lg:text-4xl font-extrabold text-[#49613E]">
+                        {(data?.tongCuaHang || 0).toLocaleString()}
+                    </span>
+                </div>
             </div>
 
-            {/* Biểu đồ doanh thu theo tháng */}
+            {/* 3. Biểu đồ 1: Doanh thu theo tháng */}
             <div className="flex flex-col gap-4">
                 <h3 className="text-xl font-bold text-[#1A1C19]">Biểu đồ doanh thu theo tháng ({year})</h3>
                 <div className="bg-[#EBF5E4] rounded-2xl p-6 w-full h-[400px] shadow-sm border border-[#D1E7C4]">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={monthlyRevenueData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#C4D7B5" />
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 12 }} dy={10} />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 12 }} dx={-10}
-                                tickFormatter={(val) => val >= 1000000 ? `${(val / 1000000).toLocaleString()}M` : val.toLocaleString()} />
+                            <XAxis
+                                dataKey="name"
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: '#666', fontSize: 12 }}
+                                dy={10}
+                            />
+                            <YAxis
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: '#666', fontSize: 12 }}
+                                dx={-10}
+                                tickFormatter={(val) => val >= 1000000 ? `${(val / 1000000).toLocaleString()}M` : val.toLocaleString()}
+                            />
                             <Tooltip
                                 formatter={(val: number) => [formatCurrency(val), 'Doanh thu']}
-                                contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
+                                contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
                             />
-                            <Line type="monotone" dataKey="value" stroke="#98B880" strokeWidth={3}
+                            <Line
+                                type="monotone"
+                                dataKey="value"
+                                stroke="#98B880"
+                                strokeWidth={3}
                                 dot={{ fill: '#EBF5E4', stroke: '#98B880', strokeWidth: 3, r: 5 }}
-                                activeDot={{ r: 8, fill: '#49613E', stroke: 'white' }} />
+                                activeDot={{ r: 8, fill: '#49613E', stroke: 'white' }}
+                            />
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
             </div>
 
-            {/* Biểu đồ doanh thu theo danh mục */}
+            {/* 4. Biểu đồ 2: Doanh thu theo sản phẩm / danh mục */}
             <div className="flex flex-col gap-4 mt-4">
                 <h3 className="text-xl font-bold text-[#1A1C19]">Biểu đồ doanh thu theo danh mục ({year})</h3>
                 <div className="bg-[#EBF5E4] rounded-2xl p-6 w-full h-[400px] shadow-sm border border-[#D1E7C4]">
@@ -128,21 +167,38 @@ const AdminReports = () => {
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={productRevenueData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#C4D7B5" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 12 }} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 12 }} dx={-10}
-                                    tickFormatter={(val) => val >= 1000000 ? `${(val / 1000000).toLocaleString()}M` : val.toLocaleString()} />
+                                <XAxis
+                                    dataKey="name"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: '#666', fontSize: 12 }}
+                                    dy={10}
+                                />
+                                <YAxis
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: '#666', fontSize: 12 }}
+                                    dx={-10}
+                                    tickFormatter={(val) => val >= 1000000 ? `${(val / 1000000).toLocaleString()}M` : val.toLocaleString()}
+                                />
                                 <Tooltip
                                     formatter={(val: number) => [formatCurrency(val), 'Doanh thu']}
-                                    contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
+                                    contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
                                 />
-                                <Line type="monotone" dataKey="value" stroke="#98B880" strokeWidth={3}
+                                <Line
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="#98B880"
+                                    strokeWidth={3}
                                     dot={{ fill: '#EBF5E4', stroke: '#98B880', strokeWidth: 3, r: 5 }}
-                                    activeDot={{ r: 8, fill: '#49613E', stroke: 'white' }} />
+                                    activeDot={{ r: 8, fill: '#49613E', stroke: 'white' }}
+                                />
                             </LineChart>
                         </ResponsiveContainer>
                     )}
                 </div>
             </div>
+
         </div>
     );
 };

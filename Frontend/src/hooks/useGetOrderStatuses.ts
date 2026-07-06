@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import publicAxios from "@/service/publicAxios";
+import axiosClient from "@/service/axiosClient";
 
 export interface TrangThaiDTO {
   id: number;
@@ -21,20 +21,23 @@ export function useGetOrderStatuses() {
     const fetchStatuses = async () => {
       try {
         setLoading(true);
-        // /api/order-statuses là public endpoint — dùng publicAxios không cần token
-        const response = await publicAxios.get(
+        // axiosClient interceptor đã return response.data
+        // nên 'response' ở đây chính là ApiResponse { success, message, data: [...] }
+        const response = await axiosClient.get<ApiResponse<TrangThaiDTO[]>>(
           `/order-statuses`
         ) as unknown as ApiResponse<TrangThaiDTO[]>;
-        const data = response.data || [];
-        setStatuses(Array.isArray(data) ? data : []);
+        const statuses = response.data || [];
+        setStatuses(Array.isArray(statuses) ? statuses : []);
         setError(null);
       } catch (err) {
+        console.error("Failed to fetch order statuses:", err);
         setError(err instanceof Error ? err.message : "Không thể lấy danh sách trạng thái");
         setStatuses([]);
       } finally {
         setLoading(false);
       }
     };
+
     fetchStatuses();
   }, []);
 

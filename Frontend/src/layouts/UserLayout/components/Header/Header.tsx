@@ -15,19 +15,22 @@ interface SuggestItem {
 
 const Header = () => {
   const user = useSelector((state: RootState) => state.auth.user);
-  const cartCount = useSelector((state: RootState) => state.cart.cart?.tongSoLuong ?? 0);
+  const cartCount = useSelector(
+    (state: RootState) => state.cart.cart?.tongSoLuong ?? 0,
+  );
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchValue, setSearchValue] = useState("");
 
+  // Gợi ý tìm kiếm
   const [suggestions, setSuggestions] = useState<SuggestItem[]>([]);
   const [showSuggest, setShowSuggest] = useState(false);
   const [loadingSuggest, setLoadingSuggest] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Sync với URL query khi ở trang /search
+  // Sync header input với URL query param khi ở trang /search
   useEffect(() => {
     if (location.pathname === "/search") {
       setSearchValue(searchParams.get("query") || "");
@@ -47,25 +50,32 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Debounce gọi API gợi ý
   const handleSearchChange = (value: string) => {
     setSearchValue(value);
+
     if (debounceRef.current) clearTimeout(debounceRef.current);
+
     if (!value.trim()) {
       setSuggestions([]);
       setShowSuggest(false);
       return;
     }
+
     debounceRef.current = setTimeout(async () => {
       setLoadingSuggest(true);
       try {
         const token = localStorage.getItem("token");
         const headers: Record<string, string> = {};
-        if (token) headers["Authorization"] = `Bearer ${token}`;
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
         const res = await publicAxios.get(
           `/products/search?keyword=${encodeURIComponent(value.trim())}&size=5`,
           { headers }
         );
-        const items: SuggestItem[] = (res as { data: { content: SuggestItem[] } })?.data?.content ?? [];
+        const items: SuggestItem[] =
+          (res as { data: { content: SuggestItem[] } })?.data?.content ?? [];
         setSuggestions(items);
         setShowSuggest(items.length > 0);
       } catch {
@@ -122,7 +132,10 @@ const Header = () => {
               {loadingSuggest ? (
                 <span className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
               ) : (
-                <button type="submit" className="text-gray-500 hover:text-black transition-colors focus:outline-none flex items-center justify-center">
+                <button
+                  type="submit"
+                  className="text-gray-500 hover:text-black transition-colors focus:outline-none flex items-center justify-center"
+                >
                   <Search size={18} />
                 </button>
               )}
@@ -139,19 +152,34 @@ const Header = () => {
                   className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-[#F4FBEE] transition-colors text-left
                     ${idx < suggestions.length - 1 ? "border-b border-gray-50" : ""}`}
                 >
+                  {/* Ảnh sản phẩm */}
                   <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                    {item.hinhAnhDaiDien
-                      ? <img src={item.hinhAnhDaiDien} alt={item.tenSanPham} className="w-full h-full object-cover" />
-                      : <div className="w-full h-full bg-gray-200" />
-                    }
+                    {item.hinhAnhDaiDien ? (
+                      <img
+                        src={item.hinhAnhDaiDien}
+                        alt={item.tenSanPham}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200" />
+                    )}
                   </div>
+
+                  {/* Tên + giá */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#1A1C19] truncate">{item.tenSanPham}</p>
-                    <p className="text-xs text-[#49613E] font-semibold">{item.giaSanPham.toLocaleString("vi-VN")}đ</p>
+                    <p className="text-sm font-medium text-[#1A1C19] truncate">
+                      {item.tenSanPham}
+                    </p>
+                    <p className="text-xs text-[#49613E] font-semibold">
+                      {item.giaSanPham.toLocaleString("vi-VN")}đ
+                    </p>
                   </div>
+
                   <Search size={14} className="text-gray-400 flex-shrink-0" />
                 </button>
               ))}
+
+              {/* Xem tất cả kết quả */}
               <button
                 onMouseDown={handleSearchSubmit as unknown as React.MouseEventHandler}
                 className="w-full px-4 py-3 text-sm text-[#49613E] font-semibold hover:bg-[#F4FBEE] transition-colors text-center border-t border-gray-100"
@@ -167,8 +195,11 @@ const Header = () => {
           {user ? (
             <UserDropdown user={user} />
           ) : (
-            <Link to="/login" className="text-sm font-medium text-[#4E6A4E]">Đăng nhập</Link>
+            <Link to="/login" className="text-sm font-medium text-[#4E6A4E]">
+              Đăng nhập
+            </Link>
           )}
+
           <Link to="/cart" className="relative text-gray-700 hover:text-black transition-colors">
             <ShoppingCart size={20} className="cursor-pointer" />
             {cartCount > 0 && (
@@ -177,9 +208,13 @@ const Header = () => {
               </span>
             )}
           </Link>
+
           <Bell size={20} className="cursor-pointer" />
+
           <Link to="/selling-post" className="text-gray-700 hover:text-black transition-colors">
-            <button className="bg-[#4E6A4E] text-white px-5 h-10 rounded-full font-medium hover:cursor-pointer">Đăng bán</button>
+            <button className="bg-[#4E6A4E] text-white px-5 h-10 rounded-full font-medium hover:cursor-pointer">
+              Đăng bán
+            </button>
           </Link>
         </div>
       </div>

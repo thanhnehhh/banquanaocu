@@ -1,6 +1,12 @@
 import axiosClient from "@/service/axiosClient";
 
-export type SellerListingFilter = "ALL" | "ACTIVE" | "PENDING" | "SOLD_OUT";
+export type SellerListingFilter =
+  | "ALL"
+  | "ACTIVE"
+  | "DEACTIVE"
+  | "REJECTED"
+  | "PENDING"
+  | "SOLD_OUT";
 
 export interface ProductImageSeller {
   maHinhAnh: number;
@@ -35,7 +41,9 @@ export interface SellerProductsPage {
   size: number;
 }
 
+/** Khớp ProductImageUpdateRequest backend */
 export interface ProductImageUpdatePayload {
+  /** null hoặc 0 = thêm mới; > 0 = cập nhật ảnh có sẵn */
   maHinhAnh?: number | null;
   tenAnh: string;
   duongDan: string;
@@ -55,19 +63,33 @@ export interface ProductUpdatePayload {
   deleteImageIds?: number[];
 }
 
-export const getSellerProducts = (page: number, size: number, filter: SellerListingFilter) =>
+export const getSellerProducts = (
+  page: number,
+  size: number,
+  filter: SellerListingFilter,
+) =>
   axiosClient.get<unknown, { data: SellerProductsPage }>("/products/seller", {
     params: { page, size, filter },
   });
 
 export const activateSellerProduct = (productId: number) =>
-  axiosClient.put<unknown, { message: string }>(`/products/${productId}/active`);
+  axiosClient.put<unknown, { message: string }>(
+    `/products/${productId}/active`,
+  );
 
 export const deactivateSellerProduct = (productId: number) =>
-  axiosClient.put<unknown, { message: string }>(`/products/${productId}/deactive`);
+  axiosClient.put<unknown, { message: string }>(
+    `/products/${productId}/deactive`,
+  );
 
-export const updateSellerProduct = (productId: number, payload: ProductUpdatePayload) =>
-  axiosClient.put<unknown, { message: string }>(`/products/${productId}`, payload);
+export const updateSellerProduct = (
+  productId: number,
+  payload: ProductUpdatePayload,
+) =>
+  axiosClient.put<unknown, { message: string }>(
+    `/products/${productId}`,
+    payload,
+  );
 
 export function getDisplayStatusLabel(displayStatus: string): string {
   const labels: Record<string, string> = {
@@ -81,7 +103,11 @@ export function getDisplayStatusLabel(displayStatus: string): string {
   return labels[displayStatus] ?? displayStatus;
 }
 
-export function getDisplayStatus(approvalStatus: string, active: boolean, inStock: number) {
+export function getDisplayStatus(
+  approvalStatus: string,
+  active: boolean,
+  inStock: number,
+) {
   const status = approvalStatus?.toUpperCase() ?? "";
   if (status === "APPROVED") {
     if (!active) return "INACTIVE";
@@ -95,10 +121,16 @@ export function getDisplayStatus(approvalStatus: string, active: boolean, inStoc
 export function mapSellerProductToCard(product: ProductSellerDTO) {
   const approvalStatus = product.trangThai?.toUpperCase() ?? "";
   const inStock = product.soLuong;
-  const displayStatus = getDisplayStatus(approvalStatus, product.active, inStock);
+  const displayStatus = getDisplayStatus(
+    approvalStatus,
+    product.active,
+    inStock,
+  );
+
   const image =
     product.images?.[0]?.duongDan ??
     "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop";
+
   const isSoldOut = approvalStatus === "APPROVED" && inStock <= 0;
 
   return {

@@ -1,37 +1,51 @@
 import { Client } from "@stomp/stompjs";
-
-// Spring Boot WebSocket hỗ trợ cả SockJS (/app_socket) và native WS (/app_socket/websocket)
-// Dùng native WebSocket URL để tránh phụ thuộc sockjs-client trong Vite ESM
-const WS_URL = "ws://localhost:8080/app_socket/websocket";
+import { store } from "../redux/store";
+import socketSlice from "@/redux/socketSlice/socketSlice";
 
 export const stompClient = new Client({
-  brokerURL: WS_URL,
+  brokerURL: "ws://localhost:8080/app_socket",
+
   reconnectDelay: 5000,
 
   beforeConnect: async () => {
     const token = localStorage.getItem("token");
-    if (token) {
-      stompClient.connectHeaders = {
-        Authorization: `Bearer ${token}`,
-      };
-    }
+
+    stompClient.connectHeaders = {
+      Authorization: `Bearer ${token}`,
+    };
   },
 
   debug: (str) => {
-    if (import.meta.env.DEV) {
-      console.log("[STOMP]", str);
-    }
+    console.log(str);
   },
 
   onConnect: () => {
-    console.log("[WebSocket] Connected");
+    console.log("WebSocket Connected");
+
+    store.dispatch(socketSlice.actions.setConnected(true));
   },
 
   onDisconnect: () => {
-    console.log("[WebSocket] Disconnected");
+    console.log("WebSocket Disconnected");
+
+    store.dispatch(socketSlice.actions.setConnected(false));
+  },
+
+  onWebSocketClose: (event) => {
+    console.log("WebSocket Closed", event);
+
+    store.dispatch(socketSlice.actions.setConnected(false));
+  },
+
+  onWebSocketError: (event) => {
+    console.error("WebSocket Error", event);
+
+    store.dispatch(socketSlice.actions.setConnected(false));
   },
 
   onStompError: (frame) => {
-    console.error("[WebSocket] Broker error", frame);
+    console.error("Broker error", frame);
+
+    store.dispatch(socketSlice.actions.setConnected(false));
   },
 });

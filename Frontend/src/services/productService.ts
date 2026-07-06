@@ -26,10 +26,8 @@ export interface ProductDetailDTO {
   danhGias: ReviewDTO[];
 }
 
-// axiosClient interceptor trả về response.data (ApiResponse { success, message, data })
-// Khi dùng các function này, cần lấy thêm .data từ kết quả để lấy payload thực
 export const getProductDetail = (id: number | string) =>
-  axiosClient.get(`/home/products/${id}`);
+  axiosClient.get<ProductDetailDTO>(`/home/products/${id}`);
 
 export const getProductsByCategory = (categoryId: number) =>
-  axiosClient.get(`/home/products/category/${categoryId}`);
+  axiosClient.get<{ data: ProductDetailDTO[] }>(`/home/products/category/${categoryId}`);

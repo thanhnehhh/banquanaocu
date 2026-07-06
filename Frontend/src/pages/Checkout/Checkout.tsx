@@ -9,7 +9,7 @@ import ShippingInfo from "./sections/ShippingInfo";
 import PaymentMethod from "./sections/PaymentMethod";
 import OrderSummary from "./sections/OrderSummary";
 
-// ── TYPES ─────────────────────────────────────────────────────────────────────
+/* ================= TYPES ================= */
 export type ShippingData = {
   hoTen: string;
   soDienThoai: string;
@@ -29,7 +29,7 @@ export type PaymentType = "cod" | "vnpay";
 
 const SHIPPING_FEE = 30000;
 
-// ── COMPONENT ─────────────────────────────────────────────────────────────────
+/* ================= COMPONENT ================= */
 const Checkout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -100,23 +100,20 @@ const Checkout = () => {
     setError(null);
 
     try {
-      // Bước 1: Tạo đơn hàng — BE trả ApiResponse { data: DonHangDTO[] }
-      const res: any = await taoDonHang({
+      // Bước 1: Tạo đơn hàng
+      const res = await taoDonHang({
         diaChiNhanHang: `${shipping.hoTen} | ${shipping.soDienThoai} | ${diaChi}`,
         chiPhiGiaoHang: SHIPPING_FEE,
         phuongThucThanhToan: payment === "vnpay" ? "VNPAY" : "COD",
       });
 
-      // axiosClient interceptor unwrap → res = ApiResponse, lấy res.data
-      const donHangs = res?.data ?? res;
-      const maDonHang = Array.isArray(donHangs) ? donHangs[0]?.maDonHang : donHangs?.maDonHang;
+      const maDonHang = res.data[0]?.maDonHang; // lấy đơn đầu tiên để redirect
 
       if (payment === "vnpay") {
-        // Thanh toán VNPAY: lấy URL rồi redirect
-        const vnpRes: any = await taoUrlThanhToanVNPay(maDonHang);
-        const paymentUrl = vnpRes?.data?.paymentUrl ?? vnpRes?.paymentUrl;
+        // Thanh toán VNPAY: lấy URL rồi redirect (dùng đơn đầu tiên)
+        const vnpRes = await taoUrlThanhToanVNPay(maDonHang);
         dispatch(resetCart());
-        window.location.href = paymentUrl;
+        window.location.href = vnpRes.data.paymentUrl;
       } else {
         // COD → về trang đơn mua
         dispatch(resetCart());

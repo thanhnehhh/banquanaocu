@@ -31,55 +31,60 @@ const ProductDetail: React.FC = () => {
   // Sản phẩm cùng shop
   const [shopProducts, setShopProducts] = useState<Product[]>([]);
   const [loadingShop, setLoadingShop] = useState(false);
-  const [showAllShop, setShowAllShop] = useState(false);
+  const [showAllShop, setShowAllShop] = useState(false); // hiện 4 hoặc tất cả
 
   // AI gợi ý
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([]);
   const [loadingAI, setLoadingAI] = useState(false);
 
-  // Đánh giá
+  // Đánh giá trong trang chi tiết
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [daDanhGia, setDaDanhGia] = useState(false);
-  const [coTheDanhGia, setCoTheDanhGia] = useState(false);
+  const [coTheDanhGia, setCoTheDanhGia] = useState(false); // đã mua + đơn thành công
 
   useEffect(() => {
     if (!id) return;
     setLoading(true);
     setShopProducts([]);
+    setShowAllShop(false);
     setAiSuggestions([]);
 
     getProductDetail(id)
       .then((res) => {
-        const productData = (res as any)?.data ?? res;
-        setProduct(productData as ProductDetailDTO);
+        const productData = (res as unknown as { data: ProductDetailDTO }).data || res;
+        setProduct(productData as unknown as ProductDetailDTO);
         setSelectedImage(0);
-        setShowAllShop(false);
 
-        // Kiểm tra đánh giá nếu đã đăng nhập
+        // Kiểm tra user đã mua sản phẩm này chưa (chỉ khi đã đăng nhập)
         if (isAuthenticated) {
           Promise.all([
             kiemTraDaDanhGia(Number(id)),
             kiemTraCoTheDanhGia(Number(id)),
           ])
             .then(([danhGiaRes, coTheRes]) => {
-              setDaDanhGia((danhGiaRes as any).data?.daDanhGia ?? false);
-              setCoTheDanhGia((coTheRes as any).data?.coTheDanhGia ?? false);
+              const da = (danhGiaRes as unknown as { data: { daDanhGia: boolean } })
+                .data?.daDanhGia ?? false;
+              const coThe = (coTheRes as unknown as { data: { coTheDanhGia: boolean } })
+                .data?.coTheDanhGia ?? false;
+              setDaDanhGia(da);
+              setCoTheDanhGia(coThe);
             })
-            .catch(() => setCoTheDanhGia(false));
+            .catch(() => {
+              setCoTheDanhGia(false);
+            });
         }
 
         // Fetch sản phẩm cùng shop
-        if ((productData as ProductDetailDTO).maNguoiBan) {
+        if ((productData as unknown as ProductDetailDTO).maNguoiBan) {
           setLoadingShop(true);
           getProductsBySellerId(
-            (productData as ProductDetailDTO).maNguoiBan,
+            (productData as unknown as ProductDetailDTO).maNguoiBan,
             Number(id),
             8
           )
-            .then((r: any) => {
-              // homeService API unwrap về response.data → đây là ApiResponse
-              const items = r?.data?.data ?? r?.data ?? r ?? [];
-              setShopProducts(Array.isArray(items) ? items : []);
+            .then((r) => {
+              const items = (r as unknown as { data: { data: Product[] } }).data?.data || [];
+              setShopProducts(items);
             })
             .catch(() => setShopProducts([]))
             .finally(() => setLoadingShop(false));
@@ -88,9 +93,9 @@ const ProductDetail: React.FC = () => {
         // Fetch AI gợi ý
         setLoadingAI(true);
         getAISuggestions({
-          tenSanPham: (productData as ProductDetailDTO).tenSanPham,
-          tenTheLoai: (productData as ProductDetailDTO).tenTheLoai,
-          giaSanPham: (productData as ProductDetailDTO).giaSanPham,
+          tenSanPham: (productData as unknown as ProductDetailDTO).tenSanPham,
+          tenTheLoai: (productData as unknown as ProductDetailDTO).tenTheLoai,
+          giaSanPham: (productData as unknown as ProductDetailDTO).giaSanPham,
         })
           .then(setAiSuggestions)
           .catch(() => setAiSuggestions([]))
@@ -365,6 +370,7 @@ const ProductDetail: React.FC = () => {
                   ))}
                 </div>
 
+                {/* Nút Xem thêm / Thu gọn */}
                 {shopProducts.length > 4 && (
                   <div className="flex justify-center mt-5">
                     <button
@@ -387,6 +393,7 @@ const ProductDetail: React.FC = () => {
               Đánh giá từ khách hàng ({product.soLuongDanhGia || 0})
             </h2>
 
+            {/* Nút đánh giá — hiện khi đã đăng nhập */}
             {isAuthenticated && coTheDanhGia && (
               daDanhGia ? (
                 <span className="flex items-center gap-1 text-sm text-[#FFA500] font-semibold">
@@ -395,7 +402,9 @@ const ProductDetail: React.FC = () => {
               ) : (
                 <button
                   onClick={() => setShowReviewModal(true)}
-                  className="flex items-center gap-2 px-5 py-2 border-2 border-[#49613E] text-[#49613E] font-semibold rounded-full hover:bg-[#49613E] hover:text-white transition-colors text-sm"
+                  className="flex items-center gap-2 px-5 py-2 border-2 border-[#49613E] text-[#49613E]
+                             font-semibold rounded-full hover:bg-[#49613E] hover:text-white
+                             transition-colors text-sm"
                 >
                   ★ Viết đánh giá
                 </button>
@@ -444,11 +453,11 @@ const ProductDetail: React.FC = () => {
           onClose={() => setShowReviewModal(false)}
           onSuccess={() => {
             setDaDanhGia(true);
-            setShowReviewModal(false);
+            // Reload product để cập nhật điểm
             getProductDetail(id!)
               .then((res) => {
-                const d = (res as any)?.data ?? res;
-                setProduct(d as ProductDetailDTO);
+                const d = (res as unknown as { data: ProductDetailDTO }).data || res;
+                setProduct(d as unknown as ProductDetailDTO);
               })
               .catch(() => {});
           }}

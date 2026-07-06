@@ -14,9 +14,9 @@ export function useUpdateProfile() {
   const [success, setSuccess] = useState(false);
 
   const submit = async (
-      payload: UpdateProfileRequest,
-      avatarFile: File | null,
-      userEmail: string,
+    payload: UpdateProfileRequest,
+    avatarFile: File | null,
+    userEmail: string,
   ) => {
     setIsLoading(true);
     setError(null);

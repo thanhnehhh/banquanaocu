@@ -16,15 +16,22 @@ export function useUpdateOrderStatus() {
     try {
       setLoading(true);
       setError(null);
+      
       const response = await axiosClient.put<ApiResponse<DonHangDTO>>(
         `/admin/orders/${maDonHang}/status`,
         { trangThai: trangThaiMoi }
       ) as unknown as ApiResponse<DonHangDTO>;
-      if (response.success) return true;
-      setError(response.message || "Cập nhật trạng thái thất bại");
-      return false;
+      
+      if (response.success) {
+        return true;
+      } else {
+        setError(response.message || "Cập nhật trạng thái thất bại");
+        return false;
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Không thể cập nhật trạng thái đơn hàng");
+      const errorMsg = err instanceof Error ? err.message : "Không thể cập nhật trạng thái đơn hàng";
+      setError(errorMsg);
+      console.error("Failed to update order status:", err);
       return false;
     } finally {
       setLoading(false);

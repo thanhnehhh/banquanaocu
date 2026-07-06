@@ -20,14 +20,10 @@ export interface DonHangDTO {
   tongTien: number;
   trangThai: string;
   lyDoHuy?: string;
-  phuongThucThanhToan?: string;
-  maDonHangCha?: number;
   chiTiet: ChiTietDonHangDTO[];
   tenKhachHang?: string;
-  emailKhachHang?: string;
   sdtKhachHang?: string;
-  tenNguoiBan?: string;
-  emailNguoiBan?: string;
+  emailKhachHang?: string;
   tenShop?: string;
   sdtShop?: string;
 }
@@ -47,14 +43,19 @@ export function useGetSellOrders(status: string = "all") {
   const fetchSellOrders = useCallback(async () => {
     try {
       setLoading(true);
+      // axiosClient interceptor đã return response.data
+      // nên 'response' ở đây chính là ApiResponse { success, message, data: [...] }
       const response = await axiosClient.get<ApiResponse<DonHangDTO[]>>(
         `/orders/sell-orders`,
-        { params: { status } }
+        {
+          params: { status },
+        }
       ) as unknown as ApiResponse<DonHangDTO[]>;
       const orderData = response.data || [];
       setOrders(Array.isArray(orderData) ? orderData : []);
       setError(null);
     } catch (err) {
+      console.error("Failed to fetch sell orders:", err);
       setError(err instanceof Error ? err.message : "Không thể lấy danh sách đơn bán");
       setOrders([]);
     } finally {
@@ -62,9 +63,14 @@ export function useGetSellOrders(status: string = "all") {
     }
   }, [status, refreshTick]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => { fetchSellOrders(); }, [fetchSellOrders]);
+  useEffect(() => {
+    fetchSellOrders();
+  }, [fetchSellOrders]);
 
-  const refetch = useCallback(() => setRefreshTick((t) => t + 1), []);
+  /** Gọi để reload lại danh sách đơn hàng */
+  const refetch = useCallback(() => {
+    setRefreshTick((t) => t + 1);
+  }, []);
 
   return { orders, loading, error, refetch };
 }

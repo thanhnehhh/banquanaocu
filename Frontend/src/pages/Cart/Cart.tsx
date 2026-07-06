@@ -7,6 +7,7 @@ import {
   fetchCart,
   removeItemFromCart,
   updateItemQty,
+  optimisticRemoveItem,
 } from "@/redux/cartSlice/cartSlice";
 
 const SHIPPING_FEE = 30000;
@@ -38,7 +39,8 @@ const Cart: React.FC = () => {
     try {
       await dispatch(removeItemFromCart(maItem)).unwrap();
       showToast("success", "Đã xóa sản phẩm khỏi giỏ hàng!");
-    } catch {
+    } catch (err) {
+      console.error("Lỗi khi xóa sản phẩm:", err);
       showToast("error", "Không thể xóa sản phẩm. Vui lòng thử lại!");
     }
   };
@@ -81,6 +83,7 @@ const Cart: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#fafafa] font-sans text-[#1A1C19]">
+      {/* Toast notification */}
       {toast && (
         <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transition-all ${toast.type === "success" ? "bg-[#49613E]" : "bg-red-500"}`}>
           {toast.type === "success" ? "✓" : "✕"} {toast.msg}
@@ -134,10 +137,15 @@ const Cart: React.FC = () => {
                   <div className="w-28 h-28 bg-white mr-6 flex-shrink-0 rounded-lg overflow-hidden">
                     <a href={`/product/${item.maSanPham}`}>
                       {item.hinhAnh ? (
-                        <img src={item.hinhAnh} alt={item.tenSanPham}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                        <img
+                          src={item.hinhAnh}
+                          alt={item.tenSanPham}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
                       ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">No image</div>
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
+                          No image
+                        </div>
                       )}
                     </a>
                   </div>
@@ -145,8 +153,10 @@ const Cart: React.FC = () => {
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start">
-                        <a href={`/product/${item.maSanPham}`}
-                          className="text-[18px] font-medium text-[#1A1C19] hover:text-[#49613E] hover:underline transition-colors">
+                        <a
+                          href={`/product/${item.maSanPham}`}
+                          className="text-[18px] font-medium text-[#1A1C19] hover:text-[#49613E] hover:underline transition-colors"
+                        >
                           {item.tenSanPham}
                         </a>
                         <span className="font-bold text-[18px]">

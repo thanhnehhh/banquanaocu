@@ -1,6 +1,6 @@
 import type { PaymentType } from "../Checkout";
 
-// ── ITEM COMPONENT ────────────────────────────────────────────────────────────
+/* ================= ITEM COMPONENT ================= */
 
 type ItemProps = {
   id: PaymentType;
@@ -40,7 +40,7 @@ const PaymentItem = ({ id, title, desc, selected, onSelect, icon }: ItemProps) =
   );
 };
 
-// ── VNPAY LOGO ────────────────────────────────────────────────────────────────
+/* ================= VNPAY LOGO ================= */
 const VNPayLogo = () => (
   <div className="flex items-center gap-1">
     <div className="bg-[#005BAA] text-white text-[10px] font-bold px-2 py-0.5 rounded">VN</div>
@@ -48,7 +48,7 @@ const VNPayLogo = () => (
   </div>
 );
 
-// ── MAIN COMPONENT ────────────────────────────────────────────────────────────
+/* ================= MAIN COMPONENT ================= */
 
 type Props = {
   method: PaymentType;

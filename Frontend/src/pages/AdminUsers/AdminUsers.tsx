@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import {
-  getUsers, searchUsers, deleteUser, getHiddenUsers,
-  searchHiddenUsers, createUser, updateUser, updateUserStatus,
+  getUsers,
+  searchUsers,
+  deleteUser,
+  getHiddenUsers,
+  searchHiddenUsers,
+  createUser,
+  updateUser,
+  updateUserStatus,
 } from "@/services/adminUserService";
 import type { User } from "@/services/adminUserService";
 import AdminUsersTable from "./sections/AdminUsersTable";
@@ -36,148 +42,314 @@ const AdminUsers = () => {
     setTimeout(() => setToast(null), 2500);
   };
 
+  // Load người dùng từ API
   const loadUsers = async (page: number, search?: string) => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
       let response;
       if (activeTab === "active") {
-        response = search?.trim() ? await searchUsers(search, page, pageSize) : await getUsers(page, pageSize);
+        if (search && search.trim()) {
+          response = await searchUsers(search, page, pageSize);
+        } else {
+          response = await getUsers(page, pageSize);
+        }
       } else {
-        response = search?.trim() ? await searchHiddenUsers(search, page, pageSize) : await getHiddenUsers(page, pageSize);
+        if (search && search.trim()) {
+          response = await searchHiddenUsers(search, page, pageSize);
+        } else {
+          response = await getHiddenUsers(page, pageSize);
+        }
       }
+
       const data = response.data;
       setUsers(data.content || []);
       setTotalPages(data.totalPages || 0);
       setTotalElements(data.totalElements || 0);
       setCurrentPage(data.currentPage || page);
-    } catch {
+    } catch (err) {
+      console.error("Lỗi tải danh sách người dùng:", err);
       setError("Không thể tải danh sách người dùng");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { loadUsers(0); }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Load dữ liệu ban đầu
+  useEffect(() => {
+    const initLoad = async () => {
+      await loadUsers(0);
+    };
+    initLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
+  // Xử lý tìm kiếm
   const handleSearch = (value: string) => {
-    setSearchTerm(value); setCurrentPage(0);
-    value.trim() ? loadUsers(0, value) : loadUsers(0);
+    setSearchTerm(value);
+    setCurrentPage(0);
+    if (value.trim()) {
+      loadUsers(0, value);
+    } else {
+      loadUsers(0);
+    }
   };
 
-  const handleOpenDeleteModal = (user: User) => { setUserToDelete(user); setIsDeleteModalOpen(true); };
+  // Mở modal xác nhận xóa
+  const handleOpenDeleteModal = (user: User) => {
+    setUserToDelete(user);
+    setIsDeleteModalOpen(true);
+  };
 
+  // Xác nhận xóa
   const handleConfirmDelete = async () => {
-    if (!userToDelete) return;
-    setIsDeleting(true);
-    try {
-      await deleteUser(userToDelete.maNguoiDung);
-      showToast("success", "Khóa người dùng thành công!");
-      setIsDeleteModalOpen(false); setUserToDelete(null);
-      loadUsers(currentPage, searchTerm);
-    } catch { showToast("error", "Không thể khóa người dùng. Vui lòng thử lại!"); }
-    finally { setIsDeleting(false); }
+    if (userToDelete) {
+      setIsDeleting(true);
+      try {
+        await deleteUser(userToDelete.maNguoiDung);
+        showToast("success", "Khóa người dùng thành công!");
+        setIsDeleteModalOpen(false);
+        setUserToDelete(null);
+        loadUsers(currentPage, searchTerm);
+      } catch (err) {
+        console.error("Lỗi xóa người dùng:", err);
+        showToast("error", "Không thể khóa người dùng. Vui lòng thử lại!");
+      } finally {
+        setIsDeleting(false);
+      }
+    }
   };
 
+  // Khôi phục người dùng
   const handleRestoreUser = async (user: User) => {
     try {
       await updateUserStatus(user.maNguoiDung, 1);
       showToast("success", "Khôi phục tài khoản thành công!");
       loadUsers(currentPage, searchTerm);
-    } catch { showToast("error", "Không thể khôi phục tài khoản. Vui lòng thử lại!"); }
+    } catch (err) {
+      console.error("Lỗi khôi phục người dùng:", err);
+      showToast("error", "Không thể khôi phục tài khoản. Vui lòng thử lại!");
+    }
   };
 
+  // Xử lý tạo người dùng mới
   const handleCreateUser = async (userData: Omit<User, "maNguoiDung" | "avatar">) => {
     setIsCreating(true);
     try {
-      await createUser(userData);
+      const mappedGender = userData.gioiTinh === "Nam" ? "M" : userData.gioiTinh === "Nữ" ? "F" : "O";
+      await createUser({
+        ...userData,
+        gioiTinh: mappedGender,
+      });
       showToast("success", "Tạo tài khoản thành công!");
-      setIsCreateModalOpen(false); setCurrentPage(0);
+      setIsCreateModalOpen(false);
+      setCurrentPage(0);
       loadUsers(0, "");
-    } catch { showToast("error", "Không thể tạo tài khoản. Vui lòng thử lại!"); }
-    finally { setIsCreating(false); }
+    } catch (err) {
+      console.error("Lỗi tạo người dùng:", err);
+      showToast("error", "Không thể tạo tài khoản. Vui lòng thử lại!");
+    } finally {
+      setIsCreating(false);
+    }
   };
 
-  const handleOpenEditModal = (user: User) => { setUserToEdit(user); setIsEditModalOpen(true); };
+  // Mở modal chỉnh sửa
+  const handleOpenEditModal = (user: User) => {
+    setUserToEdit(user);
+    setIsEditModalOpen(true);
+  };
 
+  // Xử lý lưu chỉnh sửa thông tin người dùng
   const handleEditUser = async (userData: Omit<User, "maNguoiDung" | "avatar">) => {
     if (!userToEdit) return;
     setIsSavingEdit(true);
     try {
-      await updateUser(userToEdit.maNguoiDung, userData);
+      const mappedGender = userData.gioiTinh === "Nam" ? "M" : userData.gioiTinh === "Nữ" ? "F" : "O";
+      await updateUser(userToEdit.maNguoiDung, {
+        ...userData,
+        gioiTinh: mappedGender,
+      });
       showToast("success", "Cập nhật người dùng thành công!");
-      setIsEditModalOpen(false); setUserToEdit(null);
+      setIsEditModalOpen(false);
+      setUserToEdit(null);
       loadUsers(currentPage, searchTerm);
-    } catch { showToast("error", "Không thể cập nhật người dùng. Vui lòng thử lại!"); }
-    finally { setIsSavingEdit(false); }
+    } catch (err) {
+      console.error("Lỗi cập nhật người dùng:", err);
+      showToast("error", "Không thể cập nhật người dùng. Vui lòng thử lại!");
+    } finally {
+      setIsSavingEdit(false);
+    }
   };
 
-  const tabTitle = activeTab === "active" ? "Quản lý tài khoản hoạt động" : "Quản lý tài khoản bị ẩn";
+  // Hàm chuyển trang
+  const handlePageChange = (page: number) => {
+    loadUsers(page, searchTerm);
+  };
+
+  const tabTitle =
+    activeTab === "active" ? "Quản lý tài khoản hoạt động" : "Quản lý tài khoản bị ẩn";
 
   return (
     <div className="flex flex-col gap-8 w-full max-w-7xl mx-auto pt-4 pb-8">
+      {/* Toast notification */}
       {toast && (
         <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium ${toast.type === "success" ? "bg-brand-primary" : "bg-red-500"}`}>
           {toast.type === "success" ? "✓" : "✕"} {toast.msg}
         </div>
       )}
-
+      {/* 1. Breadcrumb */}
       <div className="flex items-center gap-3 text-sm px-4">
         <span className="text-gray-500">Kênh ADMIN</span>
         <span className="text-gray-400 font-bold">›</span>
         <span className="font-bold text-brand-heading">Quản lý người dùng</span>
       </div>
 
-      <h2 className="text-2xl font-bold text-center text-brand-heading">Quản lý người dùng</h2>
+      {/* 2. Tiêu đề */}
+      <h2 className="text-2xl font-bold text-center text-brand-heading">
+        Quản lý người dùng
+      </h2>
 
       {/* Tabs */}
       <div className="px-4 border-b border-gray-200">
         <div className="flex gap-6">
-          {(["active", "hidden"] as const).map((tab) => (
-            <button key={tab} onClick={() => { setActiveTab(tab); setSearchTerm(""); setCurrentPage(0); }}
-              className={`pb-3 font-semibold transition-colors ${activeTab === tab ? "border-b-2 border-blue-500 text-blue-600" : "text-gray-600 hover:text-gray-800"}`}>
-              {tab === "active" ? "Tài Khoản Hoạt Động" : "Tài Khoản Bị Ẩn"}
-            </button>
-          ))}
+          <button
+            onClick={() => {
+              setActiveTab("active");
+              setSearchTerm("");
+              setCurrentPage(0);
+            }}
+            className={`pb-3 font-semibold transition-colors ${
+              activeTab === "active"
+                ? "border-b-2 border-blue-500 text-blue-600"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            Tài Khoản Hoạt Động
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("hidden");
+              setSearchTerm("");
+              setCurrentPage(0);
+            }}
+            className={`pb-3 font-semibold transition-colors ${
+              activeTab === "hidden"
+                ? "border-b-2 border-blue-500 text-blue-600"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            Tài Khoản Bị Ẩn
+          </button>
         </div>
       </div>
 
+      {/* 3. Tiêu đề Tab */}
       <h3 className="text-xl font-semibold text-brand-heading px-4">{tabTitle}</h3>
 
-      {/* Tìm kiếm + Thêm */}
+      {/* 4. Thanh Tìm kiếm */}
       <div className="flex justify-between items-center px-4 gap-4">
         <div className="relative flex-1">
-          <input type="text" placeholder="Tìm kiếm theo tên hoặc email..." value={searchTerm}
+          <input
+            type="text"
+            placeholder="Tìm kiếm theo tên hoặc email..."
+            value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
-            className="w-full pl-6 pr-12 py-3 bg-[#F3F4F1] border border-gray-200 rounded-lg focus:outline-none focus:border-brand-primary transition-colors" />
-          <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            className="w-full pl-6 pr-12 py-3 bg-[#F3F4F1] border border-gray-200 rounded-lg focus:outline-none focus:border-brand-primary transition-colors"
+          />
+          <svg
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
         </div>
-        <button onClick={() => setIsCreateModalOpen(true)}
-          className="px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-          <span>+</span><span>Thêm user</span>
+
+        {/* Nút Thêm User */}
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+        >
+          <span>+</span>
+          <span>Thêm user</span>
         </button>
+
+        {/* Thông tin trang */}
         <div className="text-sm text-gray-600">
-          {loading ? "Đang tải..." : `Tổng: ${totalElements} người dùng | Trang ${currentPage + 1}/${totalPages}`}
+          {loading ? (
+            <span>Đang tải...</span>
+          ) : (
+            <span>
+              Tổng: {totalElements} người dùng | Trang {currentPage + 1}/{totalPages}
+            </span>
+          )}
         </div>
       </div>
 
-      {error && <div className="px-4 py-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">{error}</div>}
+      {/* Error message */}
+      {error && (
+        <div className="px-4 py-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
 
-      <AdminUsersTable users={users} loading={loading} onEdit={handleOpenEditModal} onDelete={handleOpenDeleteModal} onRestore={handleRestoreUser} />
+      {/* 5. Table Component */}
+      <AdminUsersTable
+        users={users}
+        loading={loading}
+        onEdit={handleOpenEditModal}
+        onDelete={handleOpenDeleteModal}
+        onRestore={handleRestoreUser}
+      />
 
-      <AdminUsersPagination currentPage={currentPage} totalPages={totalPages} onPageChange={(p) => loadUsers(p, searchTerm)} loading={loading} />
+      {/* 6. Pagination Component */}
+      <AdminUsersPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        loading={loading}
+      />
 
-      <AdminUsersDeleteModal isOpen={isDeleteModalOpen} user={userToDelete} isDeleting={isDeleting}
-        onClose={() => { setIsDeleteModalOpen(false); setUserToDelete(null); }} onConfirm={handleConfirmDelete} />
+      {/* Delete Modal Component */}
+      <AdminUsersDeleteModal
+        isOpen={isDeleteModalOpen}
+        user={userToDelete}
+        isDeleting={isDeleting}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setUserToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+      />
 
-      <AdminUsersCreateModal isOpen={isCreateModalOpen} isCreating={isCreating}
-        onClose={() => setIsCreateModalOpen(false)} onCreate={handleCreateUser} />
+      {/* Create Modal Component */}
+      <AdminUsersCreateModal
+        isOpen={isCreateModalOpen}
+        isCreating={isCreating}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreate={handleCreateUser}
+      />
 
-      <AdminUsersEditModal isOpen={isEditModalOpen} isSaving={isSavingEdit} user={userToEdit}
-        onClose={() => { setIsEditModalOpen(false); setUserToEdit(null); }} onSave={handleEditUser} />
+      {/* Edit Modal Component */}
+      <AdminUsersEditModal
+        isOpen={isEditModalOpen}
+        isSaving={isSavingEdit}
+        user={userToEdit}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setUserToEdit(null);
+        }}
+        onSave={handleEditUser}
+      />
     </div>
   );
 };
 
 export default AdminUsers;
+
