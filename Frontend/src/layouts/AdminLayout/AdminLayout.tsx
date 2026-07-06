@@ -4,6 +4,7 @@ import authSlice from "@/redux/authSlice/authSlice";
 import { resetCart } from "@/redux/cartSlice/cartSlice";
 import { disconnectSocket } from "@/websocket/chatSocket";
 
+// Danh sách các menu theo đúng Figma
 const adminMenus = [
   { path: "/admin/users", label: "Quản lý người dùng" },
   { path: "/admin/categories", label: "Quản lý phân loại" },

@@ -17,7 +17,7 @@ const getInitialState = (): AuthState => {
             return {
                 isAuthenticated: true,
                 user: userInfo,
-                isHydrated: false, // false để App.tsx fetch profile đầy đủ từ server
+                isHydrated: false,
             };
         } catch (error) {
             localStorage.removeItem("token");
@@ -45,14 +45,14 @@ const authSlice = createSlice({
         login: (state, action) => {
             state.isAuthenticated = true;
             state.user = action.payload;
-            state.isHydrated = true; // profile đã load xong
+            state.isHydrated = true;
         },
         logout: (state) => {
             state.isAuthenticated = false;
             state.user = null;
             state.isHydrated = true;
         },
-        // Cập nhật từng field trong user state sau khi update profile thành công
+        /** Cập nhật từng field trong user state sau khi update profile thành công */
         updateProfile: (state, action) => {
             if (state.user) {
                 state.user = { ...state.user, ...action.payload };

@@ -5,7 +5,17 @@ export default class Token {
   sub: string;
   type: string;
 
-  constructor(expiration: number, iat: number, roles: string[], sub: string, type: string) {
-    this.expiration = expiration; this.iat = iat; this.roles = roles; this.sub = sub; this.type = type;
+  constructor(
+    expiration: number,
+    iat: number,
+    roles: string[],
+    sub: string,
+    type: string,
+  ) {
+    this.expiration = expiration;
+    this.iat = iat;
+    this.roles = roles;
+    this.sub = sub;
+    this.type = type;
   }
 }

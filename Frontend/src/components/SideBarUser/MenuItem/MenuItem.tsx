@@ -12,7 +12,11 @@ function MenuItem({ icon, text, to }: MenuItemProps) {
       to={to}
       className={({ isActive }) =>
         `flex flex-row gap-3 p-2 rounded-2xl transition-all font-manrope
-        ${isActive ? "bg-white text-brand-secondary font-bold" : "hover:bg-white hover:text-brand-secondary cursor-pointer"}`
+        ${
+          isActive
+            ? "bg-white text-brand-secondary font-bold"
+            : "hover:bg-white hover:text-brand-secondary cursor-pointer"
+        }`
       }
     >
       {icon}

@@ -7,30 +7,32 @@ export interface ChatState {
 
 export interface UserResponse {
   maNguoiDung: number;
-  hoDem?: string;
-  ten?: string;
   email: string;
-  avatar?: string;
 }
 
 export interface MessageChat {
   conversationId: number;
-  name?: string;
+  conversationName: string;
   members: UserResponse[];
   isGroup: boolean;
-  createdAt: string;
+  createAd: string;
+
+  // IMPORTANT:
+  // messages phải luôn theo thứ tự:
+  // cũ -> mới
   messages: Message[];
+
   currentPage: number;
   totalPages: number;
   totalElements: number;
 }
 
 export interface Message {
-  messageId: number;
+  id: number;
   content: string;
   sentAt: string;
-  sender: UserResponse;
-  conversationId: number;
+  senderId: number;
+  conversationId?: number;
 }
 
 const initialState: ChatState = {
@@ -40,22 +42,32 @@ const initialState: ChatState = {
 
 const chatSlice = createSlice({
   name: "chat",
+
   initialState,
+
   reducers: {
     setConversationId: (state, action: PayloadAction<number>) => {
       state.conversationId = action.payload;
     },
+
     setChatList: (state, action: PayloadAction<MessageChat>) => {
       state.chatInfo = action.payload;
     },
+
+    // realtime/new message
+    // thêm vào cuối
     addMessage: (state, action: PayloadAction<Message>) => {
       if (!state.chatInfo) return;
+
       state.chatInfo.messages.unshift(action.payload);
     },
+
     prependMessages: (state, action: PayloadAction<Message[]>) => {
       if (!state.chatInfo) return;
+
       state.chatInfo.messages = [...state.chatInfo.messages, ...action.payload];
     },
+
     clearChat: (state) => {
       state.conversationId = null;
       state.chatInfo = null;

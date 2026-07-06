@@ -29,11 +29,15 @@ export function useGetAdminOrders(status: string = "all", page: number = 0, size
       setLoading(true);
       const response = await axiosClient.get<ApiResponse<PageResponse<DonHangDTO>>>(
         `/admin/orders`,
-        { params: { status, page, size } }
+        {
+          params: { status, page, size },
+        }
       ) as unknown as ApiResponse<PageResponse<DonHangDTO>>;
+      
       setPageData(response.data);
       setError(null);
     } catch (err) {
+      console.error("Failed to fetch admin orders:", err);
       setError(err instanceof Error ? err.message : "Không thể lấy danh sách đơn hàng");
       setPageData(null);
     } finally {
@@ -41,9 +45,13 @@ export function useGetAdminOrders(status: string = "all", page: number = 0, size
     }
   }, [status, page, size, refreshTick]);
 
-  useEffect(() => { fetchAdminOrders(); }, [fetchAdminOrders]);
+  useEffect(() => {
+    fetchAdminOrders();
+  }, [fetchAdminOrders]);
 
-  const refetch = useCallback(() => setRefreshTick((t) => t + 1), []);
+  const refetch = useCallback(() => {
+    setRefreshTick((t) => t + 1);
+  }, []);
 
   return { pageData, loading, error, refetch };
 }

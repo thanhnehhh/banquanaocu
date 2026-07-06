@@ -15,21 +15,26 @@ export interface CategoryResponse {
   pageSize: number;
 }
 
+// Lấy danh sách danh mục với phân trang
 export const getCategories = (page: number = 0, size: number = 10) =>
   axiosClient.get<unknown, { data: CategoryResponse }>("/admin/categories", {
     params: { page, size },
   });
 
+// Tìm kiếm danh mục với phân trang
 export const searchCategories = (searchTerm: string, page: number = 0, size: number = 10) =>
   axiosClient.get<unknown, { data: CategoryResponse }>("/admin/categories/search", {
     params: { q: searchTerm, page, size },
   });
 
+// Tạo danh mục mới
 export const createCategory = (categoryData: Omit<CategoryDTO, "maTheLoai" | "soSanPham">) =>
   axiosClient.post<unknown, { data: CategoryDTO }>("/admin/categories", categoryData);
 
+// Cập nhật danh mục
 export const updateCategory = (maTheLoai: number, categoryData: Omit<CategoryDTO, "maTheLoai" | "soSanPham">) =>
   axiosClient.put<unknown, { data: CategoryDTO }>(`/admin/categories/${maTheLoai}`, categoryData);
 
+// Xóa danh mục
 export const deleteCategory = (maTheLoai: number) =>
   axiosClient.delete<unknown, { data: void }>(`/admin/categories/${maTheLoai}`);

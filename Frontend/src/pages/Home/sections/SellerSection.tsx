@@ -20,39 +20,48 @@ const SellerSection = () => {
                 // Lọc không hiện bản thân
                 setSellers(currentEmail ? list.filter((s: Seller) => s.email !== currentEmail) : list);
             })
-            .catch(console.error)
+            .catch((err) => console.error('Error fetching sellers:', err))
             .finally(() => setLoading(false));
     }, [currentEmail]);
 
-    if (loading) return (
-        <section className="bg-[#F5F5F3] py-16">
-            <div className="max-w-[1200px] mx-auto px-6 text-center">
-                <div className="py-12 text-gray-500">Đang tải người bán...</div>
-            </div>
-        </section>
-    );
+    if (loading) {
+        return (
+            <section className="bg-[#F5F5F3] py-16">
+                <div className="max-w-[1200px] mx-auto px-6 text-center">
+                    <div className="py-12 text-gray-500">Đang tải người bán...</div>
+                </div>
+            </section>
+        );
+    }
 
     if (sellers.length === 0) return null;
 
     return (
         <section className="bg-[#F5F5F3] py-16">
             <div className="max-w-[1200px] mx-auto px-6 text-center">
-                <h2 className="text-2xl font-semibold text-[#4E6A4E]">Cộng đồng người bán</h2>
-                <p className="text-sm text-gray-600 mt-2">Những thành viên tích cực nhất trên nền tảng</p>
+                <h2 className="text-2xl font-semibold text-[#4E6A4E]">
+                    Cộng đồng người bán
+                </h2>
+                <p className="text-sm text-gray-600 mt-2">
+                    Những thành viên tích cực nhất trên nền tảng
+                </p>
                 <div className="grid md:grid-cols-4 gap-6 mt-10">
                     {sellers.map((s) => (
                         <div key={s.maNguoiDung} className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition">
                             <div className="w-16 h-16 bg-gray-300 rounded-full mx-auto overflow-hidden flex items-center justify-center">
-                                {s.avatar
-                                    ? <img src={s.avatar} alt={s.hoTen} className="w-full h-full object-cover" />
-                                    : <span className="text-2xl">👤</span>
-                                }
+                                {s.avatar ? (
+                                    <img src={s.avatar} alt={s.hoTen} className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-2xl">👤</span>
+                                )}
                             </div>
                             <h3 className="mt-4 font-medium line-clamp-1">
-                                {/* Bỏ "null " nếu hoTen bắt đầu bằng "null " */}
+                                {/* Bỏ "null" nếu hoTen bắt đầu bằng "null " */}
                                 {s.hoTen?.startsWith('null ') ? s.hoTen.slice(5) : s.hoTen}
                             </h3>
-                            <p className="text-xs text-yellow-500 font-bold">⭐ {s.danhGiaXepHang.toFixed(1)}/5</p>
+                            <p className="text-xs text-yellow-500 font-bold">
+                                ⭐ {s.danhGiaXepHang.toFixed(1)}/5
+                            </p>
                             <p className="text-sm mt-3 text-gray-600">
                                 {s.soSanPham} sản phẩm{s.soDienThoai ? ` • ${s.soDienThoai}` : ''}
                             </p>

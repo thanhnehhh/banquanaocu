@@ -2,7 +2,11 @@ import { useState } from "react";
 import axiosClient from "@/service/axiosClient";
 import type { DonHangDTO } from "./useGetSellOrders";
 
-interface ApiResponse<T> { success: boolean; message: string; data: T; }
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
 
 export function useConfirmAdminOrder() {
   const [loading, setLoading] = useState(false);
@@ -16,8 +20,10 @@ export function useConfirmAdminOrder() {
         `/admin/orders/${maDonHang}/confirm`
       ) as unknown as ApiResponse<DonHangDTO>;
       return response.data;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Không thể xác nhận đơn hàng");
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "Không thể xác nhận đơn hàng";
+      setError(msg);
       return null;
     } finally {
       setLoading(false);

@@ -1,11 +1,11 @@
-interface ProductPending {
+import type ProductImagePending from "./ProductImagePending";
+
+export default interface ProductPending {
   maSanPham: number;
   tenSanPham: string;
-  giaSanPham: number;
   soLuong: number;
+  giaSanPham: string;
   emailSeller: string;
   trangThai: string;
-  images: { duongDan: string; tenAnd?: string }[];
+  images: ProductImagePending[];
 }
-
-export default ProductPending;

@@ -39,6 +39,7 @@ const AdminCategories = () => {
     setTimeout(() => setToast(null), 2500);
   };
 
+  // Load danh mục từ API
   const loadCategories = async (page: number, search?: string) => {
     setLoading(true);
     setError(null);
@@ -49,6 +50,7 @@ const AdminCategories = () => {
       } else {
         response = await getCategories(page, pageSize);
       }
+
       const data = response.data;
       setCategories(data.content || []);
       setTotalPages(data.totalPages || 0);
@@ -62,11 +64,13 @@ const AdminCategories = () => {
     }
   };
 
+  // Load dữ liệu ban đầu
   useEffect(() => {
     loadCategories(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Xử lý tìm kiếm
   const handleSearch = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(0);
@@ -77,11 +81,13 @@ const AdminCategories = () => {
     }
   };
 
+  // Mở modal chỉnh sửa
   const handleOpenEditModal = (category: CategoryDTO) => {
     setSelectedCategory(category);
     setIsEditModalOpen(true);
   };
 
+  // Lưu chỉnh sửa danh mục
   const handleSaveEdit = async (
     maTheLoai: number,
     categoryData: Omit<CategoryDTO, "maTheLoai" | "soSanPham">
@@ -101,11 +107,13 @@ const AdminCategories = () => {
     }
   };
 
+  // Mở modal xác nhận xóa
   const handleOpenDeleteModal = (category: CategoryDTO) => {
     setCategoryToDelete(category);
     setIsDeleteModalOpen(true);
   };
 
+  // Xác nhận xóa danh mục
   const handleConfirmDelete = async () => {
     if (categoryToDelete) {
       setIsDeleting(true);
@@ -114,6 +122,7 @@ const AdminCategories = () => {
         showToast("success", "Xóa phân loại thành công!");
         setIsDeleteModalOpen(false);
         setCategoryToDelete(null);
+        // Load lại trang trước đó nếu trang hiện tại bị trống sau khi xóa
         const isLastItem = categories.length === 1;
         const newPage = isLastItem && currentPage > 0 ? currentPage - 1 : currentPage;
         loadCategories(newPage, searchTerm);
@@ -126,6 +135,7 @@ const AdminCategories = () => {
     }
   };
 
+  // Xử lý khôi phục danh mục
   const handleRestoreCategory = async (category: CategoryDTO) => {
     try {
       await updateCategory(category.maTheLoai, {
@@ -140,6 +150,7 @@ const AdminCategories = () => {
     }
   };
 
+  // Xử lý tạo danh mục mới
   const handleCreateCategory = async (
     categoryData: Omit<CategoryDTO, "maTheLoai" | "soSanPham">
   ) => {
@@ -158,30 +169,33 @@ const AdminCategories = () => {
     }
   };
 
+  // Chuyển trang
   const handlePageChange = (page: number) => {
     loadCategories(page, searchTerm);
   };
 
   return (
     <div className="flex flex-col gap-8 w-full max-w-7xl mx-auto pt-4 pb-8">
-      {/* Toast */}
+      {/* Toast notification */}
       {toast && (
         <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium ${toast.type === "success" ? "bg-brand-primary" : "bg-red-500"}`}>
           {toast.type === "success" ? "✓" : "✕"} {toast.msg}
         </div>
       )}
 
-      {/* Breadcrumb */}
+      {/* 1. Breadcrumb */}
       <div className="flex items-center gap-3 text-sm px-4">
         <span className="text-gray-500">Kênh ADMIN</span>
         <span className="text-gray-400 font-bold">›</span>
         <span className="font-bold text-brand-heading">Quản lý phân loại</span>
       </div>
 
-      {/* Tiêu đề */}
-      <h2 className="text-2xl font-bold text-center text-brand-heading">Quản lý phân loại</h2>
+      {/* 2. Tiêu đề */}
+      <h2 className="text-2xl font-bold text-center text-brand-heading">
+        Quản lý phân loại
+      </h2>
 
-      {/* Thanh tìm kiếm + nút thêm */}
+      {/* 3. Thanh Tìm kiếm và nút Thêm */}
       <div className="flex justify-between items-center px-4 gap-4">
         <div className="relative flex-1">
           <input
@@ -191,11 +205,22 @@ const AdminCategories = () => {
             onChange={(e) => handleSearch(e.target.value)}
             className="w-full pl-6 pr-12 py-3 bg-[#F3F4F1] border border-gray-200 rounded-lg focus:outline-none focus:border-brand-primary transition-colors"
           />
-          <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <svg
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
         </div>
 
+        {/* Nút Thêm Phân Loại */}
         <button
           onClick={() => setIsCreateModalOpen(true)}
           className="px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -204,19 +229,26 @@ const AdminCategories = () => {
           <span>Thêm phân loại</span>
         </button>
 
+        {/* Thông tin trang */}
         <div className="text-sm text-gray-600">
           {loading ? (
             <span>Đang tải...</span>
           ) : (
-            <span>Tổng: {totalElements} phân loại | Trang {currentPage + 1}/{totalPages}</span>
+            <span>
+              Tổng: {totalElements} phân loại | Trang {currentPage + 1}/{totalPages}
+            </span>
           )}
         </div>
       </div>
 
+      {/* Error message */}
       {error && (
-        <div className="px-4 py-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">{error}</div>
+        <div className="px-4 py-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+          {error}
+        </div>
       )}
 
+      {/* 4. Table Component */}
       <AdminCategoriesTable
         categories={categories}
         loading={loading}
@@ -225,6 +257,7 @@ const AdminCategories = () => {
         onRestore={handleRestoreCategory}
       />
 
+      {/* 5. Pagination Component */}
       <AdminCategoriesPagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -232,6 +265,7 @@ const AdminCategories = () => {
         loading={loading}
       />
 
+      {/* Create Modal Component */}
       <AdminCategoriesCreateModal
         isOpen={isCreateModalOpen}
         isCreating={isCreating}
@@ -239,19 +273,27 @@ const AdminCategories = () => {
         onCreate={handleCreateCategory}
       />
 
+      {/* Edit Modal Component */}
       <AdminCategoriesEditModal
         isOpen={isEditModalOpen}
         category={selectedCategory}
         isSaving={isSaving}
-        onClose={() => { setIsEditModalOpen(false); setSelectedCategory(null); }}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedCategory(null);
+        }}
         onSave={handleSaveEdit}
       />
 
+      {/* Delete Modal Component */}
       <AdminCategoriesDeleteModal
         isOpen={isDeleteModalOpen}
         category={categoryToDelete}
         isDeleting={isDeleting}
-        onClose={() => { setIsDeleteModalOpen(false); setCategoryToDelete(null); }}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setCategoryToDelete(null);
+        }}
         onConfirm={handleConfirmDelete}
       />
     </div>

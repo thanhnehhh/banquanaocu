@@ -34,11 +34,13 @@ const ProductCard = ({ id, title, price, seller, image, tag, maxQuantity = 1 }: 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (!isAuthenticated) {
       showToast("error", "Không thể thêm vào giỏ hàng. Vui lòng đăng nhập!");
       setTimeout(() => navigate("/login"), 1200);
       return;
     }
+
     setIsAdding(true);
     try {
       await dispatch(addItemToCart({ maSanPham: id, soLuong: quantity })).unwrap();
@@ -51,12 +53,23 @@ const ProductCard = ({ id, title, price, seller, image, tag, maxQuantity = 1 }: 
     }
   };
 
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    const value = parseInt(e.target.value) || 1;
+    setQuantity(Math.max(1, Math.min(value, maxQuantity)));
+  };
+
   return (
     <div className="block cursor-pointer group relative">
-      {/* Toast dùng createPortal — hiển thị fixed, không bị che bởi overflow:hidden */}
+      {/* Toast notification */}
       {toast.type && createPortal(
-        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transition-all
-            ${toast.type === "success" ? "bg-[#49613E]" : "bg-red-500"}`}
+        <div
+          className={`
+            fixed top-5 right-5 z-50
+            flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg
+            text-white text-sm font-medium transition-all
+            ${toast.type === "success" ? "bg-[#49613E]" : "bg-red-500"}
+          `}
         >
           {toast.type === "success" ? "✓" : "✕"} {toast.msg}
         </div>,
@@ -65,18 +78,31 @@ const ProductCard = ({ id, title, price, seller, image, tag, maxQuantity = 1 }: 
 
       <Link to={`/product/${id}`} className="space-y-2 block">
         <div className="relative rounded-xl overflow-hidden">
-          {tag && <span className="absolute top-2 left-2 bg-white text-xs px-2 py-1 rounded-full z-10">{tag}</span>}
-          <img src={image} alt={title} className="w-full h-[220px] object-cover group-hover:scale-105 transition-transform duration-300" />
+          {tag && (
+            <span className="absolute top-2 left-2 bg-white text-xs px-2 py-1 rounded-full z-10">
+              {tag}
+            </span>
+          )}
+          <img
+            src={image}
+            alt={title}
+            className="w-full h-[220px] object-cover group-hover:scale-105 transition-transform duration-300"
+          />
         </div>
-        <h3 className="text-sm font-medium group-hover:text-[#49613E] transition-colors truncate">{title}</h3>
+        <h3 className="text-sm font-medium group-hover:text-[#49613E] transition-colors truncate">
+          {title}
+        </h3>
         <p className="font-semibold">{price}</p>
         <p className="text-xs text-gray-500">by {seller}</p>
       </Link>
 
       <div className="flex gap-2 mt-3" onClick={(e) => e.preventDefault()}>
         <input
-          type="number" min="1" max={maxQuantity} value={quantity}
-          onChange={(e) => { e.stopPropagation(); setQuantity(Math.max(1, Math.min(parseInt(e.target.value) || 1, maxQuantity))); }}
+          type="number"
+          min="1"
+          max={maxQuantity}
+          value={quantity}
+          onChange={handleQuantityChange}
           onClick={(e) => e.stopPropagation()}
           className="w-12 border border-gray-300 rounded px-2 py-1 text-center text-xs focus:outline-none focus:border-[#49613E]"
         />

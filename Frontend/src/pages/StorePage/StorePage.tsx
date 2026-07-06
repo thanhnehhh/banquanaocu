@@ -34,10 +34,12 @@ const StorePage = () => {
   useEffect(() => {
     if (!sellerId) return;
 
+    // Load thông tin seller
     setLoadingSeller(true);
     publicAxios
       .get(`/home/sellers/${sellerId}`)
       .then((res) => {
+        // publicAxios interceptor: res = { success, message, data: {...} }
         const raw = res as { data: SellerInfo } | SellerInfo;
         const info = (raw as { data: SellerInfo }).data ?? (raw as SellerInfo);
         setSeller(info);
@@ -45,10 +47,12 @@ const StorePage = () => {
       .catch(() => setSeller(null))
       .finally(() => setLoadingSeller(false));
 
+    // Load sản phẩm của seller — không giới hạn (limit=100)
     setLoadingProducts(true);
     publicAxios
       .get(`/home/sellers/${sellerId}/products?limit=100`)
       .then((res) => {
+        // publicAxios interceptor đã unwrap 1 lần: res = { success, message, data: [...] }
         const raw = res as { data: Product[] } | Product[];
         const items = Array.isArray(raw)
           ? raw
@@ -79,9 +83,10 @@ const StorePage = () => {
 
   return (
     <div className="min-h-screen bg-[#F9FAF4]">
-      {/* Banner shop */}
+      {/* ── Banner shop ── */}
       <div className="bg-[#1F3D2B] py-12">
         <div className="max-w-5xl mx-auto px-6 flex items-center gap-6">
+          {/* Avatar */}
           <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white/30 flex-shrink-0 bg-white/10">
             {seller.avatar ? (
               <img src={seller.avatar} alt={seller.hoTen} className="w-full h-full object-cover" />
@@ -92,6 +97,7 @@ const StorePage = () => {
             )}
           </div>
 
+          {/* Info */}
           <div className="flex-1 text-white">
             <div className="flex items-center gap-2 mb-1">
               <Store size={18} className="opacity-70" />
@@ -124,7 +130,7 @@ const StorePage = () => {
         </div>
       </div>
 
-      {/* Sản phẩm */}
+      {/* ── Sản phẩm ── */}
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-[#1A1C19]">
@@ -154,8 +160,11 @@ const StorePage = () => {
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {displayedProducts.map((p) => (
-                <Link key={p.maSanPham} to={`/product/${p.maSanPham}`}
-                  className="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+                <Link
+                  key={p.maSanPham}
+                  to={`/product/${p.maSanPham}`}
+                  className="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
+                >
                   <div className="h-48 overflow-hidden bg-[#F9FAF4]">
                     <img
                       src={p.hinhAnhDaiDien || "https://via.placeholder.com/300x300?text=No+Image"}
@@ -183,8 +192,10 @@ const StorePage = () => {
 
             {products.length > 8 && (
               <div className="flex justify-center mt-8">
-                <button onClick={() => setShowAll(!showAll)}
-                  className="px-8 py-3 border border-[#49613E] text-[#49613E] rounded-full text-sm font-semibold hover:bg-[#F4FBEE] transition-colors">
+                <button
+                  onClick={() => setShowAll(!showAll)}
+                  className="px-8 py-3 border border-[#49613E] text-[#49613E] rounded-full text-sm font-semibold hover:bg-[#F4FBEE] transition-colors"
+                >
                   {showAll ? "Thu gọn ↑" : `Xem thêm ${products.length - 8} sản phẩm ↓`}
                 </button>
               </div>

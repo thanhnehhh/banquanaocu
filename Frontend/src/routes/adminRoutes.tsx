@@ -16,7 +16,7 @@ import AdminRoute from "./adminRoute";
 
 const adminRoutes = {
   path: "/admin",
-  element: <AdminRoute />,
+  element: <AdminRoute />, // kiểm tra quyền trước
   children: [
     {
       element: <AdminLayout />,

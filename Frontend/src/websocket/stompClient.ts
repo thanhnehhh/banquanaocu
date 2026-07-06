@@ -9,39 +9,43 @@ export const stompClient = new Client({
 
   beforeConnect: async () => {
     const token = localStorage.getItem("token");
+
     stompClient.connectHeaders = {
       Authorization: `Bearer ${token}`,
     };
   },
 
   debug: (str) => {
-    if (import.meta.env.DEV) {
-      console.log("[STOMP]", str);
-    }
+    console.log(str);
   },
 
   onConnect: () => {
-    console.log("[WebSocket] Connected");
+    console.log("WebSocket Connected");
+
     store.dispatch(socketSlice.actions.setConnected(true));
   },
 
   onDisconnect: () => {
-    console.log("[WebSocket] Disconnected");
+    console.log("WebSocket Disconnected");
+
     store.dispatch(socketSlice.actions.setConnected(false));
   },
 
   onWebSocketClose: (event) => {
-    console.log("[WebSocket] Closed", event);
+    console.log("WebSocket Closed", event);
+
     store.dispatch(socketSlice.actions.setConnected(false));
   },
 
   onWebSocketError: (event) => {
-    console.error("[WebSocket] Error", event);
+    console.error("WebSocket Error", event);
+
     store.dispatch(socketSlice.actions.setConnected(false));
   },
 
   onStompError: (frame) => {
-    console.error("[WebSocket] Broker error", frame);
+    console.error("Broker error", frame);
+
     store.dispatch(socketSlice.actions.setConnected(false));
   },
 });

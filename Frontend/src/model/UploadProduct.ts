@@ -23,8 +23,8 @@ export default class UploadProduct {
     thuongHieu: string,
     categoryId: number,
     tinhTrangId: number,
+    statusId: number | undefined,
     images: ImageUpload[],
-    statusId?: number,
   ) {
     this.tenSanPham = tenSanPham;
     this.soLuong = soLuong;

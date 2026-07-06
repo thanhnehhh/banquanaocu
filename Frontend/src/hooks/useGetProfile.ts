@@ -13,8 +13,9 @@ export function useGetProfile() {
     axiosClient
       .get(`/user/profile`)
       .then((response) => {
-        const data = (response as any).data;
+        const data = response.data;
 
+        console.log("=== DATA PROFILE THỰC TẾ TỪ BACKEND ===", data);
         const userInfo: User = {
           maNguoiDung: data.maNguoiDung || data.id,
           email: data.email,
@@ -22,7 +23,7 @@ export function useGetProfile() {
           token: decodedToken,
           avatar: data.avatar || "",
           name: data.ten || "",
-          gioiTinh: data.gioiTinh ? String(data.gioiTinh) : "",
+          gioiTinh: data.gioiTinh || "",
           phone: data.soDienThoai || "",
           hobby: data.hobby || "",
           createAt: data.ngayDangKy || "",
