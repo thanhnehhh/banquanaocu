@@ -52,14 +52,6 @@ const publicRoutes = [
     element: <StorePage />,
   },
   {
-    path: "/store/:sellerId",
-    element: <StorePage />,
-  },
-  {
-    path: "/store/:sellerId",
-    element: <StorePage />,
-  },
-  {
     path: "*",
     element: <NotFoundPage />,
   },

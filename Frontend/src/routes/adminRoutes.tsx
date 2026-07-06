@@ -12,7 +12,7 @@ import AdminShipping from "@/pages/AdminShipping";
 import AdminMessages from "@/pages/AdminMessages";
 import AdminReviews from "@/pages/AdminReviews";
 import AdminPostProduct from "@/pages/AdminPostProduct";
-import AdminRoute from "./AdminRoute";
+import AdminRoute from "./adminRoute";
 
 const adminRoutes = {
   path: "/admin",
