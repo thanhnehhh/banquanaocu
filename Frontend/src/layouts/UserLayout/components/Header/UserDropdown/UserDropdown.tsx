@@ -144,13 +144,6 @@ const UserDropdown = ({ user }: UserDropdownProps) => {
 
             <div className="h-px bg-gray-100 my-1 mx-2"></div>
             <Link
-              to="/add-product"
-              className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors"
-            >
-              <Heart size={16} className="text-gray-500" />
-              Yêu thích
-            </Link>
-            <Link
               to="/profile/buy-orders"
               className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors"
             >

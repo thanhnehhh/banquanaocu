@@ -104,7 +104,6 @@ function SideBarUser() {
 
       <span className="p-2">Mua hàng</span>
 
-      <MenuItem to="/favorites" icon={<Heart size={20} />} text="Yêu thích" />
       <MenuItem
         to="/profile/buy-orders"
         icon={<ShoppingCart size={20} />}

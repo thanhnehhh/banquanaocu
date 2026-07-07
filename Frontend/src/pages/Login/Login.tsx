@@ -122,24 +122,16 @@ function Login() {
               </Link>
             </div>
 
-            <input
-              type="password"
+            <AuthInput
+              label=""
               placeholder="Nhập mật khẩu của bạn"
+              type="password"
               value={password}
               onChange={(e) => {
                 const newPassword = e.target.value;
                 setPassword(newPassword);
                 setPasswordError(validatePassword(newPassword));
               }}
-              className="       border border-gray-300
-                                w-full h-12
-                                px-4
-                                rounded-[10px]
-                                bg-brand-input
-                                text-[14px]
-                                placeholder:text-brand-placeholder
-                                focus:outline-none focus:ring-1 focus:ring-brand-accent
-                            "
             />
           </div>
           <div className="space-y-2">
