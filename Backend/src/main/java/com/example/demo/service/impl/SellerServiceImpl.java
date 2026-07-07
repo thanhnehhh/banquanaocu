@@ -27,6 +27,7 @@ public class SellerServiceImpl implements SellerService {
     public List<SellerDTO> getTopRatedSellers(int limit) {
         return userRepository.findAll().stream()
                 .map(this::convertToDTO)
+                .filter(s -> s.getSoSanPham() > 0)
                 .sorted((s1, s2) -> Double.compare(s2.getDanhGiaXepHang(), s1.getDanhGiaXepHang()))
                 .limit(limit)
                 .collect(Collectors.toList());
@@ -36,6 +37,7 @@ public class SellerServiceImpl implements SellerService {
     public List<SellerDTO> getTopSellersByProductCount(int limit) {
         return userRepository.findAll().stream()
                 .map(this::convertToDTO)
+                .filter(s -> s.getSoSanPham() > 0)
                 .sorted((s1, s2) -> Long.compare(s2.getSoSanPham(), s1.getSoSanPham()))
                 .limit(limit)
                 .collect(Collectors.toList());
@@ -51,14 +53,24 @@ public class SellerServiceImpl implements SellerService {
         dto.setDiaChi(user.getDiaChi());
         dto.setAvatar(user.getAvatar());
 
+        // Chỉ tính sản phẩm APPROVED + active
         if (user.getProducts() != null) {
-            dto.setSoSanPham(user.getProducts().size());
+            long activeProducts = user.getProducts().stream()
+                    .filter(p -> p.isActive()
+                            && p.getTrangThaiSanPham() != null
+                            && "APPROVED".equals(p.getTrangThaiSanPham().getTenTrangThai()))
+                    .count();
+            dto.setSoSanPham(activeProducts);
         } else {
             dto.setSoSanPham(0);
         }
 
+        // Tính xếp hạng chỉ dựa trên sản phẩm APPROVED + active
         double avgRating = user.getProducts() != null ?
                 user.getProducts().stream()
+                        .filter(p -> p.isActive()
+                                && p.getTrangThaiSanPham() != null
+                                && "APPROVED".equals(p.getTrangThaiSanPham().getTenTrangThai()))
                         .filter(p -> p.getReviews() != null && !p.getReviews().isEmpty())
                         .flatMapToDouble(p -> p.getReviews().stream()
                                 .mapToDouble(r -> r.getDiemXepHang()))

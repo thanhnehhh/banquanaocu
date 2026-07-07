@@ -14,9 +14,16 @@ import AdminReviews from "@/pages/AdminReviews";
 import AdminPostProduct from "@/pages/AdminPostProduct";
 import AdminRoute from "./adminRoute";
 
+const ComingSoon = ({ title }: { title: string }) => (
+  <div className="flex flex-col items-center justify-center h-64 gap-4">
+    <h2 className="text-2xl font-bold text-[#49613E]">{title}</h2>
+    <p className="text-gray-500">Tính năng đang được phát triển</p>
+  </div>
+);
+
 const adminRoutes = {
   path: "/admin",
-  element: <AdminRoute />, // kiểm tra quyền trước
+  element: <AdminRoute />,
   children: [
     {
       element: <AdminLayout />,
@@ -30,6 +37,9 @@ const adminRoutes = {
         { path: "complaints", element: <AdminComplaints /> },
         { path: "promotions", element: <AdminPromotions /> },
         { path: "promotions/vouchers", element: <AdminVouchers /> },
+        { path: "promotions/campaigns", element: <ComingSoon title="Chương trình khuyến mãi" /> },
+        { path: "promotions/history", element: <ComingSoon title="Lịch sử sử dụng" /> },
+        { path: "promotions/reports", element: <ComingSoon title="Báo cáo hiệu quả" /> },
         { path: "shipping", element: <AdminShipping /> },
         { path: "messages", element: <AdminMessages /> },
         { path: "reviews", element: <AdminReviews /> },

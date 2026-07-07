@@ -156,7 +156,13 @@ public class ProductServiceImpl implements ProductService {
                     HinhAnh image = new HinhAnh();
 
                     image.setTenHinhAnh(imgRequest.getTenAnh());
-                    image.setDuongDan(imgRequest.getDuongDan());
+                    // Nếu duongDan là base64 data URL thì lưu vào duLieuAnh, còn lại lưu duongDan
+                    String url = imgRequest.getDuongDan();
+                    if (url != null && url.startsWith("data:")) {
+                        image.setDuLieuAnh(url);
+                    } else {
+                        image.setDuongDan(url);
+                    }
 
                     // gán product
                     image.setProduct(savedProduct);
@@ -255,6 +261,8 @@ public class ProductServiceImpl implements ProductService {
             case ACTIVE -> productRepository.findActiveListingsByUser(user, pageable);
             case PENDING -> productRepository.findPendingByUser(user, pageable);
             case SOLD_OUT -> productRepository.findSoldOutByUser(user, pageable);
+            case DEACTIVE -> productRepository.findDeactiveListingsByUser(user, pageable);
+            case REJECTED -> productRepository.findRejectListingsByUser(user, pageable);
             default -> productRepository.findByUser(user, pageable);
         };
 

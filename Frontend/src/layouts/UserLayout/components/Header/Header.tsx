@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
-import { Bell, Search, ShoppingCart } from "lucide-react";
+import { Search, ShoppingCart } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
 import UserDropdown from "./UserDropdown/UserDropdown";
 import publicAxios from "@/service/publicAxios";
+import NotificationBell from "@/components/common/NotificationBell";
 
 interface SuggestItem {
   maSanPham: number;
@@ -209,7 +210,7 @@ const Header = () => {
             )}
           </Link>
 
-          <Bell size={20} className="cursor-pointer" />
+          <NotificationBell />
 
           <Link to="/selling-post" className="text-gray-700 hover:text-black transition-colors">
             <button className="bg-[#4E6A4E] text-white px-5 h-10 rounded-full font-medium hover:cursor-pointer">

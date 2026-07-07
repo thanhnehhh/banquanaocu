@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 interface Conversations {
-  id: number;
+  conversationId: number;
   name?: string;
   isGroup?: boolean;
   createdAt: string;
@@ -53,8 +53,8 @@ function SideBarChat() {
       <div className="mt-6 space-y-3">
         {conversations.map((conversation) => (
           <div
-            onClick={() => handleChooseConversation(conversation.id)}
-            key={conversation.id}
+            onClick={() => handleChooseConversation(conversation.conversationId)}
+            key={conversation.conversationId}
             className="group rounded-3xl border border-transparent bg-white p-4 transition hover:border-slate-300 hover:shadow-sm"
           >
             <div className="flex items-center justify-between gap-3">

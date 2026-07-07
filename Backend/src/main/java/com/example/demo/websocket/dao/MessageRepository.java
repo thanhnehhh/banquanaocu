@@ -16,6 +16,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     Page<Message> findByConversationOrderBySentAtDesc(Conversation conversation, Pageable pageable);
 
     // Lấy tin nhắn cuối cùng của cuộc trò chuyện
-    @Query("SELECT m FROM Message m WHERE m.conversation = :conversation ORDER BY m.sentAt DESC")
+    @Query("SELECT m FROM Message m WHERE m.conversation = :conversation ORDER BY m.sentAt DESC LIMIT 1")
     Optional<Message> findLastMessageByConversation(@Param("conversation") Conversation conversation);
 }

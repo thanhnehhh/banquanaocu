@@ -29,9 +29,11 @@ export interface MessageChat {
 
 export interface Message {
   id: number;
+  messageId?: number;
   content: string;
   sentAt: string;
-  senderId: number;
+  senderId?: number;           // legacy flat (không dùng nữa)
+  sender?: UserResponse;       // object từ backend
   conversationId?: number;
 }
 

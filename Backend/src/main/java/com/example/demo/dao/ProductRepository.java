@@ -15,24 +15,24 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    // Lấy tất cả sản phẩm theo danh mục (chỉ active=1, trang_thai=2)
-    @Query("SELECT p FROM Product p WHERE p.category.maTheLoai = :maTheLoai AND p.active = true AND p.trangThaiSanPham.id = 2")
+    // Lấy tất cả sản phẩm theo danh mục (chỉ active=1, trang_thai=APPROVED)
+    @Query("SELECT p FROM Product p WHERE p.category.maTheLoai = :maTheLoai AND p.active = true AND p.trangThaiSanPham.tenTrangThai = 'APPROVED'")
     List<Product> findByCategoryMaTheLoai(@Param("maTheLoai") int maTheLoai);
 
-    // Lấy sản phẩm theo người bán (chỉ active=1, trang_thai=2)
-    @Query("SELECT p FROM Product p WHERE p.user.maNguoiDung = :maNguoiDung AND p.active = true AND p.trangThaiSanPham.id = 2")
+    // Lấy sản phẩm theo người bán (chỉ active=1, APPROVED, còn hàng)
+    @Query("SELECT p FROM Product p WHERE p.user.maNguoiDung = :maNguoiDung AND p.active = true AND p.trangThaiSanPham.tenTrangThai = 'APPROVED' AND p.soLuong > 0")
     List<Product> findByUserMaNguoiDung(@Param("maNguoiDung") long maNguoiDung);
 
     // Lấy sản phẩm bán chạy nhất, loại trừ sản phẩm của người bán đang đăng nhập (nếu có)
     @Query("SELECT p FROM Product p " +
-           "WHERE p.active = true AND p.trangThaiSanPham.id = 2 " +
+           "WHERE p.active = true AND p.trangThaiSanPham.tenTrangThai = 'APPROVED' AND p.soLuong > 0 " +
            "AND (:excludeEmail IS NULL OR p.user.email != :excludeEmail) " +
            "ORDER BY p.soLuongDaBan DESC")
     Page<Product> findBestSellingProducts(@Param("excludeEmail") String excludeEmail, Pageable pageable);
 
     // Lấy sản phẩm mới nhất, loại trừ sản phẩm của người bán đang đăng nhập (nếu có)
     @Query("SELECT p FROM Product p " +
-           "WHERE p.active = true AND p.trangThaiSanPham.id = 2 " +
+           "WHERE p.active = true AND p.trangThaiSanPham.tenTrangThai = 'APPROVED' AND p.soLuong > 0 " +
            "AND (:excludeEmail IS NULL OR p.user.email != :excludeEmail) " +
            "ORDER BY p.maSanPham DESC")
     List<Product> findNewestProducts(@Param("excludeEmail") String excludeEmail, Pageable pageable);
@@ -49,7 +49,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.tinhTrang.maTinhTrang = :maTinhTrang AND p.active = true AND p.trangThaiSanPham.id = 2")
     Page<Product> findByTinhTrangMaTinhTrang(@Param("maTinhTrang") int maTinhTrang, Pageable pageable);
 
-    // Tìm kiếm sản phẩm với bộ lọc kết hợp (chỉ active=1, trang_thai=2)
+    // Tìm kiếm sản phẩm với bộ lọc kết hợp (chỉ active=1, APPROVED)
     @Query(value = "SELECT p FROM Product p WHERE " +
            "(:tenSanPham IS NULL OR LOWER(p.tenSanPham) LIKE LOWER(CONCAT('%', :tenSanPham, '%'))) " +
            "AND (:maTheLoai IS NULL OR p.category.maTheLoai = :maTheLoai) " +
@@ -57,7 +57,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
            "AND (:giaMin IS NULL OR p.giaSanPham >= :giaMin) " +
            "AND (:giaMax IS NULL OR p.giaSanPham <= :giaMax) " +
            "AND p.active = true " +
-           "AND p.trangThaiSanPham.id = 2")
+           "AND p.trangThaiSanPham.tenTrangThai = 'APPROVED'")
     Page<Product> searchProducts(
             @Param("tenSanPham") String tenSanPham,
             @Param("maTheLoai") Integer maTheLoai,
@@ -81,6 +81,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p WHERE p.user = :user AND p.trangThaiSanPham.tenTrangThai = 'APPROVED' AND p.soLuong <= 0")
     Page<Product> findSoldOutByUser(@Param("user") User user, Pageable pageable);
+
+    @Query("SELECT p FROM Product p WHERE p.user = :user AND p.trangThaiSanPham.tenTrangThai = 'REJECTED'")
+    Page<Product> findRejectListingsByUser(@Param("user") User user, Pageable pageable);
+
+    @Query("SELECT p FROM Product p WHERE p.user = :user AND p.active = false")
+    Page<Product> findDeactiveListingsByUser(@Param("user") User user, Pageable pageable);
 
     // ─── Admin filters ────────────────────────────────────────────────────────
 
