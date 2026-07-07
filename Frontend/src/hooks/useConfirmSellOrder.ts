@@ -1,5 +1,7 @@
 import { useState } from "react";
 import axiosClient from "@/service/axiosClient";
+import { useDispatch } from "react-redux";
+import { addNotification } from "@/redux/notificationSlice/notificationSlice";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -14,6 +16,7 @@ interface DonHangDTO {
 }
 
 export function useConfirmSellOrder() {
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,10 +27,17 @@ export function useConfirmSellOrder() {
       const response = await axiosClient.put<ApiResponse<DonHangDTO>>(
         `/orders/${maDonHang}/seller-confirm`
       ) as unknown as ApiResponse<DonHangDTO>;
+
+      dispatch(addNotification({
+        type: "order",
+        title: "Xác nhận đơn hàng thành công",
+        description: `Đơn hàng #${maDonHang} đã được xác nhận. Hãy chuẩn bị hàng và giao cho khách.`,
+        link: "/profile/sell-orders",
+      }));
+
       return response.data;
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Không thể xác nhận đơn hàng";
+      const msg = err instanceof Error ? err.message : "Không thể xác nhận đơn hàng";
       setError(msg);
       return null;
     } finally {

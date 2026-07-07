@@ -3,6 +3,7 @@ import authSlice from "./authSlice/authSlice";
 import cartSlice from "./cartSlice/cartSlice";
 import chatSlice from "./chatSlice/chatSlice";
 import socketSlice from "./socketSlice/socketSlice";
+import notificationSlice from "./notificationSlice/notificationSlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     cart: cartSlice.reducer,
     chat: chatSlice.reducer,
     socket: socketSlice.reducer,
+    notification: notificationSlice.reducer,
   },
 });
 

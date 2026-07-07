@@ -8,6 +8,7 @@ import { taoUrlThanhToanVNPay } from "@/services/vnpayService";
 import ShippingInfo from "./sections/ShippingInfo";
 import PaymentMethod from "./sections/PaymentMethod";
 import OrderSummary from "./sections/OrderSummary";
+import { addNotification } from "@/redux/notificationSlice/notificationSlice";
 
 /* ================= TYPES ================= */
 export type ShippingData = {
@@ -113,10 +114,22 @@ const Checkout = () => {
         // Thanh toán VNPAY: lấy URL rồi redirect (dùng đơn đầu tiên)
         const vnpRes = await taoUrlThanhToanVNPay(maDonHang);
         dispatch(resetCart());
+        dispatch(addNotification({
+          type: "order",
+          title: "Đặt hàng thành công",
+          description: `Đơn hàng #${maDonHang} đang chờ thanh toán qua VNPAY.`,
+          link: "/profile/buy-orders",
+        }));
         window.location.href = vnpRes.data.paymentUrl;
       } else {
         // COD → về trang đơn mua
         dispatch(resetCart());
+        dispatch(addNotification({
+          type: "order",
+          title: "Đặt hàng thành công",
+          description: `Đơn hàng #${maDonHang} đã được đặt thành công. Người bán sẽ xác nhận sớm nhất.`,
+          link: "/profile/buy-orders",
+        }));
         navigate("/profile/buy-orders", {
           state: { successOrderId: maDonHang },
         });
