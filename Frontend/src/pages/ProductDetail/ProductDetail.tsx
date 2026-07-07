@@ -10,6 +10,7 @@ import { getProductsBySellerId } from "@/services/homeService";
 import type { Product } from "@/services/homeService";
 import { getAISuggestions } from "@/services/aiService";
 import type { AISuggestion } from "@/services/aiService";
+import publicAxios from "@/service/publicAxios";
 import CommentSection from "@/components/common/CommentSection";
 import ReviewModal from "@/components/common/ReviewModal";
 import { kiemTraDaDanhGia, kiemTraCoTheDanhGia } from "@/services/reviewService";
@@ -36,11 +37,22 @@ const ProductDetail: React.FC = () => {
   // AI gợi ý
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([]);
   const [loadingAI, setLoadingAI] = useState(false);
+  const [categoryMap, setCategoryMap] = useState<Record<string, number>>({});
 
   // Đánh giá trong trang chi tiết
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [daDanhGia, setDaDanhGia] = useState(false);
   const [coTheDanhGia, setCoTheDanhGia] = useState(false); // đã mua + đơn thành công
+
+  // Load categories để map tên → id cho AI filter
+  useEffect(() => {
+    publicAxios.get("/home/categories").then((res: any) => {
+      const cats: { maTheLoai: number; tenTheLoai: string }[] = res?.data || [];
+      const map: Record<string, number> = {};
+      cats.forEach(c => { map[c.tenTheLoai] = c.maTheLoai; });
+      setCategoryMap(map);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -279,10 +291,15 @@ const ProductDetail: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {aiSuggestions.map((s, i) => (
+              {aiSuggestions.map((s, i) => {
+                const catId = s.categoryName ? categoryMap[s.categoryName] : undefined;
+                const searchUrl = catId
+                  ? `/search?query=${encodeURIComponent(s.searchKeyword)}&category=${catId}`
+                  : `/search?query=${encodeURIComponent(s.searchKeyword)}`;
+                return (
                 <Link
                   key={i}
-                  to={`/search?keyword=${encodeURIComponent(s.searchKeyword)}`}
+                  to={searchUrl}
                   className="bg-white rounded-xl p-4 hover:shadow-md transition-shadow group border border-transparent hover:border-[#49613E]/20"
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -296,9 +313,11 @@ const ProductDetail: React.FC = () => {
                   </div>
                   <span className="inline-block mt-2 text-xs text-[#49613E] bg-[#F0F7EE] px-2 py-0.5 rounded-full">
                     Tìm: {s.searchKeyword}
+                    {s.categoryName && ` · ${s.categoryName}`}
                   </span>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
