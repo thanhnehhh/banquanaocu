@@ -173,9 +173,8 @@ function UserBuyOrder() {
   const handeChatSeller = async (emailOpponent: any) => {
     try {
       const res = (await chatWithSeller(emailOpponent)) as any;
-      console.log(res);
       if (res.success === true) {
-        dispatch(chatSlice.actions.setConversationId(res.data.id));
+        dispatch(chatSlice.actions.setConversationId(res.data.conversationId));
         navigate("/profile/messages");
       }
     } catch {

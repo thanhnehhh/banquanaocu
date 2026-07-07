@@ -9,8 +9,10 @@ export async function uploadProductImage(file: File): Promise<string> {
     );
   }
 
-  const bucket = import.meta.env.VITE_SUPABASE_BUCKET_PRODUCT || "product";
-  const fileName = `${Date.now()}_${file.name}`;
+  const bucket = import.meta.env.VITE_SUPABASE_BUCKET_PRODUCT || "banquanaocu";
+  // Sanitize tên file: bỏ ký tự đặc biệt, khoảng trắng, tiếng Việt
+  const ext = file.name.split(".").pop() || "jpg";
+  const fileName = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
   const { error } = await supabase.storage
     .from(bucket)
     .upload(fileName, file, { upsert: true });

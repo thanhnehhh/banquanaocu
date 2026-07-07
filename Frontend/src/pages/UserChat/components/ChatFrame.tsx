@@ -13,7 +13,9 @@ function ChatFrame() {
   const connected = useSelector((state: any) => state.socket.connected);
   const user = useSelector((state: any) => state.auth.user);
 
-  const [userCurrentId, setUserCurrentId] = useState<number | null>(null);
+  const [userCurrentId, setUserCurrentId] = useState<number | null>(
+    user?.maNguoiDung ?? null   // khởi tạo ngay từ Redux, không chờ async load conversation
+  );
 
   const [text, setText] = useState("");
 
@@ -138,7 +140,9 @@ function ChatFrame() {
           (member: any) => member.email === user.email,
         );
 
-        setUserCurrentId(userCurrent.maNguoiDung);
+        // Ưu tiên lấy từ members, fallback về Redux store
+        const currentId = userCurrent?.maNguoiDung ?? user?.maNguoiDung ?? null;
+        setUserCurrentId(currentId);
 
         // conversation mới -> xuống cuối
         setTimeout(() => {
@@ -261,11 +265,12 @@ function ChatFrame() {
 
           <div className="space-y-4">
             {[...(chatInfo?.messages || [])].reverse().map((message: any) => {
-              const isMine = message.senderId === userCurrentId;
+              const isMine = Number(message.sender?.maNguoiDung) === Number(userCurrentId);
+              const msgKey = message.messageId ?? message.id ?? Math.random();
 
               return (
                 <div
-                  key={message.id}
+                  key={msgKey}
                   className={`flex ${isMine ? "justify-end" : "justify-start"}`}
                 >
                   <div
