@@ -51,6 +51,7 @@ public class Endpoints {
             "/api/payment/vnpay/create-payment",
             "/api/comments",    // Đăng bình luận cần đăng nhập
             "/api/vi/*/rut-tien", // Rút tiền ví
+            "/api/files/upload-image", // Upload ảnh sản phẩm
     };
 
     public static final String[] PRIVATE_PUT_ENDPOINT = new String[] {

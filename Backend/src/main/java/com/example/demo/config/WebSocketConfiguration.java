@@ -30,10 +30,8 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Đăng ký endpoint hỗ trợ cả SockJS (fallback) và native WebSocket
         registry.addEndpoint("/app_socket")
-                .setAllowedOriginPatterns("*")
-                .withSockJS(); // SockJS fallback — frontend dùng ws://host/app_socket/websocket cho native WS
+                .setAllowedOrigins("http://localhost:5173");
     }
 
     @Override

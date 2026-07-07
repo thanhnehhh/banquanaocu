@@ -40,7 +40,10 @@ public class HomeController {
 
     @GetMapping("/categories")
     public ResponseEntity<ApiResponse<List<CategoryDTO>>> getCategories() {
-        return ApiResponse.ok("Lấy danh sách danh mục thành công!", categoryService.getAllCategories());
+        List<CategoryDTO> categories = categoryService.getAllCategories().stream()
+                .filter(c -> c.getActive() == null || Boolean.TRUE.equals(c.getActive()))
+                .collect(Collectors.toList());
+        return ApiResponse.ok("Lấy danh sách danh mục thành công!", categories);
     }
 
     @GetMapping("/products/newest")
@@ -62,6 +65,13 @@ public class HomeController {
     @GetMapping("/sellers/top-rated")
     public ResponseEntity<ApiResponse<List<SellerDTO>>> getTopRatedSellers(@RequestParam(defaultValue = "8") int limit) {
         return ApiResponse.ok("Lấy danh sách top người bán thành công!", sellerService.getTopRatedSellers(limit));
+    }
+
+    @GetMapping("/sellers/top-products")
+    public ResponseEntity<ApiResponse<List<SellerDTO>>> getTopSellersByProductCount(
+            @RequestParam(defaultValue = "8") int limit) {
+        List<SellerDTO> sellers = sellerService.getTopSellersByProductCount(limit);
+        return ApiResponse.ok("Lấy danh sách người bán top sản phẩm thành công!", sellers);
     }
 
     @GetMapping("/products/category/{categoryId}")

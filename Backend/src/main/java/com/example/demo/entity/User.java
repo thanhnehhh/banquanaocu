@@ -3,6 +3,7 @@ package com.example.demo.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,10 +14,12 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "user")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     @Column(name = "ma_nguoi_dung")
     private long maNguoiDung;
 

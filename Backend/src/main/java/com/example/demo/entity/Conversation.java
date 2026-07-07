@@ -32,7 +32,7 @@ public class Conversation {
     @JoinTable(
             name = "conversation_members",
             joinColumns = @JoinColumn(name = "conversation_id"),
-            inverseJoinColumns = @JoinColumn(name = "ma_nguoi_dung")
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> members = new ArrayList<>();
 
