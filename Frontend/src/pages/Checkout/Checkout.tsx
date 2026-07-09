@@ -93,9 +93,18 @@ const Checkout = () => {
       .filter(Boolean)
       .join(", ");
 
-    if (!diaChi.trim()) { setError("Vui lòng nhập địa chỉ nhận hàng."); return; }
     if (!shipping.hoTen.trim()) { setError("Vui lòng nhập họ tên người nhận."); return; }
-    if (!shipping.soDienThoai.trim()) { setError("Vui lòng nhập số điện thoại."); return; }
+
+    // Validate định dạng số điện thoại Việt Nam
+    const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
+    if (!shipping.soDienThoai.trim()) {
+      setError("Vui lòng nhập số điện thoại."); return;
+    }
+    if (!phoneRegex.test(shipping.soDienThoai.trim())) {
+      setError("Số điện thoại không đúng định dạng (VD: 0912345678)."); return;
+    }
+
+    if (!diaChi.trim()) { setError("Vui lòng nhập địa chỉ nhận hàng."); return; }
 
     setLoading(true);
     setError(null);

@@ -77,6 +77,21 @@ const cartSlice = createSlice({
         );
       }
     },
+    // Optimistic update qty — cập nhật số lượng ngay trước khi API trả về
+    optimisticUpdateQty: (state, action: PayloadAction<{ maItem: number; soLuong: number }>) => {
+      if (state.cart) {
+        const item = state.cart.items.find(i => i.maItem === action.payload.maItem);
+        if (item) {
+          item.soLuong = action.payload.soLuong;
+          state.cart.tongSoLuong = state.cart.items.reduce(
+            (sum, i) => sum + i.soLuong, 0
+          );
+          state.cart.tongTien = state.cart.items.reduce(
+            (sum, i) => sum + i.giaSanPham * i.soLuong, 0
+          );
+        }
+      }
+    },
   },
   extraReducers: (builder) => {
     const handlePending = (state: CartState) => {
@@ -108,7 +123,10 @@ const cartSlice = createSlice({
       })
       .addCase(removeItemFromCart.fulfilled, handleFulfilled)
       .addCase(removeItemFromCart.rejected, handleRejected)
-      .addCase(updateItemQty.pending, handlePending)
+      .addCase(updateItemQty.pending, (state) => {
+        // Không set loading=true khi update qty để tránh nháy UI
+        state.error = null;
+      })
       .addCase(updateItemQty.fulfilled, handleFulfilled)
       .addCase(updateItemQty.rejected, handleRejected)
       .addCase(emptyCart.fulfilled, (state) => {
@@ -118,5 +136,5 @@ const cartSlice = createSlice({
   },
 });
 
-export const { resetCart, optimisticRemoveItem } = cartSlice.actions;
+export const { resetCart, optimisticRemoveItem, optimisticUpdateQty } = cartSlice.actions;
 export default cartSlice;

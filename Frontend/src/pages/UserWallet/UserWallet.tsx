@@ -218,8 +218,8 @@ function UserWallet() {
                         <div className="mt-4 text-4xl font-extrabold text-slate-900">
                             {loadingWallet ? "..." : `${(balance || 0).toLocaleString('vi-VN')}₫`}
                         </div>
-                        <div className="mt-2 text-sm text-emerald-700">
-                            ↑ Tăng 15% so với tháng trước
+                        <div className="mt-2 text-sm text-slate-400">
+                            Số dư khả dụng trong ví
                         </div>
                     </div>
 
@@ -236,8 +236,8 @@ function UserWallet() {
                         <span>Điểm</span>
                         <span className="text-xl">🎁</span>
                     </div>
-                    <div className="mt-6 text-4xl font-extrabold text-slate-900">45</div>
-                    <div className="mt-2 text-sm text-slate-600">Đã hoàn thành 40</div>
+                    <div className="mt-6 text-4xl font-extrabold text-slate-900">0</div>
+                    <div className="mt-2 text-sm text-slate-400">Chưa có điểm tích lũy</div>
                 </div>
 
                 <div className="rounded-3xl bg-[#ECF9E7] p-6 shadow-sm">
@@ -245,10 +245,8 @@ function UserWallet() {
                         <span>Lượt xem shop</span>
                         <span className="text-xl">👀</span>
                     </div>
-                    <div className="mt-6 text-4xl font-extrabold text-slate-900">
-                        1,240
-                    </div>
-                    <div className="mt-2 text-sm text-emerald-700">↑ Tăng 5%</div>
+                    <div className="mt-6 text-4xl font-extrabold text-slate-900">0</div>
+                    <div className="mt-2 text-sm text-slate-400">Chưa có lượt xem</div>
                 </div>
             </div>
 

@@ -8,6 +8,7 @@ import {
   removeItemFromCart,
   updateItemQty,
   optimisticRemoveItem,
+  optimisticUpdateQty,
 } from "@/redux/cartSlice/cartSlice";
 
 const SHIPPING_FEE = 30000;
@@ -47,7 +48,14 @@ const Cart: React.FC = () => {
 
   const handleUpdateQty = (maItem: number, soLuong: number) => {
     if (soLuong < 1) return;
-    dispatch(updateItemQty({ maItem, soLuong }));
+    // Optimistic update — đổi số lượng trên UI ngay, không chờ API
+    dispatch(optimisticUpdateQty({ maItem, soLuong }));
+    // Gọi API sau — nếu lỗi thì fetchCart lại để đồng bộ
+    dispatch(updateItemQty({ maItem, soLuong }))
+      .unwrap()
+      .catch(() => {
+        dispatch(fetchCart()); // rollback về đúng data từ server
+      });
   };
 
   const handleCheckout = () => {
