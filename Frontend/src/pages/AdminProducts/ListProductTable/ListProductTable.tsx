@@ -7,6 +7,9 @@ import {
 } from "@tanstack/react-table";
 import { useEffect, useMemo, useState } from "react";
 import EditModal from "../components/EditModal";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "@/redux/store";
+import { fetchPendingCount } from "@/redux/pendingProductsSlice/pendingProductsSlice";
 
 interface ProductList {
   maSanPham: number;
@@ -26,6 +29,7 @@ interface ProductImage {
 const PAGE_SIZE = 5;
 
 function ListProductTable() {
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<ProductList[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +42,12 @@ function ListProductTable() {
   useEffect(() => {
     fetchPendingProducts(currentPage);
   }, [currentPage, reload]);
+  useEffect(() => {
+    // Mỗi khi reload thay đổi (sau khi admin duyệt/từ chối), cập nhật lại badge count
+    if (reload !== null) {
+      dispatch(fetchPendingCount());
+    }
+  }, [reload]);
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => setSuccess(""), 3000);

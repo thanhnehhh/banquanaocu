@@ -33,4 +33,24 @@ public class ThongKeController {
         List<DoanhThuDanhMucDTO> result = thongKeService.getDoanhThuTheoDanhMuc(maSeller, thang, nam);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/seller/{maSeller}/khoang-ngay")
+    public ResponseEntity<List<DoanhThuNgayDTO>> getDoanhThuTheoKhoangNgay(
+            @PathVariable("maSeller") int maSeller,
+            @RequestParam("tuNgay") String tuNgay,
+            @RequestParam("denNgay") String denNgay) {
+        java.time.LocalDate tu = java.time.LocalDate.parse(tuNgay);
+        java.time.LocalDate den = java.time.LocalDate.parse(denNgay);
+        return ResponseEntity.ok(thongKeService.getDoanhThuTheoKhoangNgay(maSeller, tu, den));
+    }
+
+    @GetMapping("/seller/{maSeller}/danh-muc/khoang-ngay")
+    public ResponseEntity<List<DoanhThuDanhMucDTO>> getDoanhThuDanhMucTheoKhoangNgay(
+            @PathVariable("maSeller") int maSeller,
+            @RequestParam("tuNgay") String tuNgay,
+            @RequestParam("denNgay") String denNgay) {
+        java.time.LocalDate tu = java.time.LocalDate.parse(tuNgay);
+        java.time.LocalDate den = java.time.LocalDate.parse(denNgay);
+        return ResponseEntity.ok(thongKeService.getDoanhThuDanhMucTheoKhoangNgay(maSeller, tu, den));
+    }
 }

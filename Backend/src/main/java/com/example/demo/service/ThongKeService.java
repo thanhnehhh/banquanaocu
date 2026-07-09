@@ -9,5 +9,7 @@ import java.util.List;
 public interface ThongKeService {
     List<DoanhThuNgayDTO> getDoanhThuTheoThang(int maSeller, int nam, int thang);
     List<DoanhThuDanhMucDTO> getDoanhThuTheoDanhMuc(int maSeller, int thang, int nam);
+    List<DoanhThuNgayDTO> getDoanhThuTheoKhoangNgay(int maSeller, java.time.LocalDate tuNgay, java.time.LocalDate denNgay);
+    List<DoanhThuDanhMucDTO> getDoanhThuDanhMucTheoKhoangNgay(int maSeller, java.time.LocalDate tuNgay, java.time.LocalDate denNgay);
     AdminThongKeDTO getAdminThongKe(int nam);
 }

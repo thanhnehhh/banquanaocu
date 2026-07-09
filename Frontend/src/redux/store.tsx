@@ -4,6 +4,7 @@ import cartSlice from "./cartSlice/cartSlice";
 import chatSlice from "./chatSlice/chatSlice";
 import socketSlice from "./socketSlice/socketSlice";
 import notificationSlice from "./notificationSlice/notificationSlice";
+import pendingProductsSlice from "./pendingProductsSlice/pendingProductsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     chat: chatSlice.reducer,
     socket: socketSlice.reducer,
     notification: notificationSlice.reducer,
+    pendingProducts: pendingProductsSlice.reducer,
   },
 });
 
