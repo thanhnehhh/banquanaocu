@@ -22,7 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import java.util.List;
 
 @Configuration
@@ -72,6 +71,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, Endpoints.PUBLIC_GET_ENDPOINTS).permitAll()
                 .requestMatchers(HttpMethod.POST, Endpoints.PUBLIC_POST_ENDPOINTS).permitAll()
 
+                // ── Seller endpoints (phải đứng trước ADMIN_GET_ENDPOINTS vì /api/products/* sẽ match /api/products/seller) ─
+                .requestMatchers(HttpMethod.GET, "/api/products/seller").authenticated()
+
                 // ── Admin only ────────────────────────────────────────────────
                 .requestMatchers(HttpMethod.GET, Endpoints.ADMIN_GET_ENDPOINTS).hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, Endpoints.ADMIN_PUT_ENDPOINTS).hasRole("ADMIN")
@@ -102,10 +104,9 @@ public class SecurityConfig {
                 .successHandler(oAuth2SuccessHandler)
                 .failureHandler(oAuth2FailureHandler));
 
+        // Trả 401 JSON cho /api/** thay vì redirect sang OAuth2 login
         http.exceptionHandling(exception -> exception
-                .defaultAuthenticationEntryPointFor(
-                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                        PathPatternRequestMatcher.withDefaults().matcher("/api/**")));
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
         return http.build();
     }
 

@@ -46,6 +46,38 @@ public interface ThongKeRepository extends JpaRepository<ChiTietDonHang, Long> {
             @Param("nam") int nam
     );
 
+    @Query("SELECT new com.example.demo.dto.DoanhThuNgayDTO(DAY(d.ngayTao), SUM(ct.soLuong * ct.giaBan)) " +
+            "FROM ChiTietDonHang ct " +
+            "JOIN ct.donHang d " +
+            "JOIN ct.product p " +
+            "WHERE p.user.maNguoiDung = :maSeller " +
+            "AND d.ngayTao >= :tuNgay " +
+            "AND d.ngayTao <= :denNgay " +
+            "AND d.trangThaiDonHang.id = 5 " +
+            "GROUP BY DAY(d.ngayTao) " +
+            "ORDER BY DAY(d.ngayTao) ASC")
+    List<DoanhThuNgayDTO> thongKeDoanhThuTheoKhoangNgay(
+            @Param("maSeller") int maSeller,
+            @Param("tuNgay") java.time.LocalDate tuNgay,
+            @Param("denNgay") java.time.LocalDate denNgay
+    );
+
+    @Query("SELECT new com.example.demo.dto.DoanhThuDanhMucDTO(c.tenTheLoai, SUM(ct.soLuong * ct.giaBan)) " +
+            "FROM ChiTietDonHang ct " +
+            "JOIN ct.product p " +
+            "JOIN p.category c " +
+            "JOIN ct.donHang dh " +
+            "WHERE p.user.maNguoiDung = :maSeller " +
+            "AND dh.ngayTao >= :tuNgay " +
+            "AND dh.ngayTao <= :denNgay " +
+            "AND dh.trangThaiDonHang.id = 5 " +
+            "GROUP BY c.tenTheLoai")
+    List<DoanhThuDanhMucDTO> thongKeDoanhThuDanhMucTheoKhoangNgay(
+            @Param("maSeller") int maSeller,
+            @Param("tuNgay") java.time.LocalDate tuNgay,
+            @Param("denNgay") java.time.LocalDate denNgay
+    );
+
     // ─── Admin thống kê tổng hệ thống ─────────────────────────────────────────
 
     @Query("SELECT COALESCE(SUM(dh.tongTien), 0.0) FROM DonHang dh WHERE dh.trangThaiDonHang.id = 5")

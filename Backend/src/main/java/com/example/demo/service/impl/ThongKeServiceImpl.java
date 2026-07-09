@@ -28,6 +28,16 @@ public class ThongKeServiceImpl implements ThongKeService {
     }
 
     @Override
+    public List<DoanhThuNgayDTO> getDoanhThuTheoKhoangNgay(int maSeller, java.time.LocalDate tuNgay, java.time.LocalDate denNgay) {
+        return thongKeRepository.thongKeDoanhThuTheoKhoangNgay(maSeller, tuNgay, denNgay);
+    }
+
+    @Override
+    public List<DoanhThuDanhMucDTO> getDoanhThuDanhMucTheoKhoangNgay(int maSeller, java.time.LocalDate tuNgay, java.time.LocalDate denNgay) {
+        return thongKeRepository.thongKeDoanhThuDanhMucTheoKhoangNgay(maSeller, tuNgay, denNgay);
+    }
+
+    @Override
     public AdminThongKeDTO getAdminThongKe(int nam) {
         double tongDoanhThu = thongKeRepository.countTongDoanhThu();
         long tongDonHang    = thongKeRepository.countTongDonHang();
