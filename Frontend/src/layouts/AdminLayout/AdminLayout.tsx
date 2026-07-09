@@ -1,8 +1,11 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import authSlice from "@/redux/authSlice/authSlice";
 import { resetCart } from "@/redux/cartSlice/cartSlice";
 import { disconnectSocket } from "@/websocket/chatSocket";
+import { useEffect } from "react";
+import { fetchPendingCount } from "@/redux/pendingProductsSlice/pendingProductsSlice";
+import type { AppDispatch, RootState } from "@/redux/store";
 
 // Danh sách các menu theo đúng Figma
 const adminMenus = [
@@ -21,8 +24,14 @@ const adminMenus = [
 ];
 
 const AdminLayout = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const pendingCount = useSelector((state: RootState) => state.pendingProducts.count);
+
+  // Fetch pending count mỗi khi admin layout mount
+  useEffect(() => {
+    dispatch(fetchPendingCount());
+  }, [dispatch]);
 
   const handleLogout = () => {
     fetch(import.meta.env.VITE_API_MAIN_URL + "/auth/dang-xuat", {
@@ -72,12 +81,18 @@ const AdminLayout = () => {
               className={({ isActive }) =>
                 `flex items-center px-4 py-3 rounded-2xl transition-all ${
                   isActive
-                    ? "bg-white text-[#1A1C19] shadow-sm font-bold" // Active giống Figma (trắng, có bóng mờ)
+                    ? "bg-white text-[#1A1C19] shadow-sm font-bold"
                     : "text-gray-500 hover:bg-gray-100 font-medium"
                 }`
               }
             >
-              <span className="truncate">{menu.label}</span>
+              <span className="truncate flex-1">{menu.label}</span>
+              {/* Badge đỏ: chỉ hiện ở "Quản lý sản phẩm" khi có sản phẩm chờ duyệt */}
+              {menu.path === "/admin/products" && pendingCount > 0 && (
+                <span className="ml-2 min-w-[20px] h-5 px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold leading-none">
+                  {pendingCount > 99 ? "99+" : pendingCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
